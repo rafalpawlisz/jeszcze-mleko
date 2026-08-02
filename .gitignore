@@ -1,0 +1,17 @@
+# Local tooling config (dev server definition for the editor)
+.claude/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Nothing is built here — no node_modules, no dist. If any appear, they are a
+# mistake: the repo itself is what GitHub Pages serves.
+node_modules/
+dist/

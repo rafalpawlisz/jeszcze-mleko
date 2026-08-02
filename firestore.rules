@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// Security rules for "Jeszcze Mleko".
+// Paste into the Firebase console: Firestore Database -> Rules -> Publish.
+//
+// This is the second line of defence. The first one is App Check (reCAPTCHA v3),
+// which filters out traffic that does not come from the app. These rules cover
+// the rest: who has access to which list, and what shape the stored documents
+// are allowed to have.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /lists/{listId} {
+
+      function isMember() {
+        return signedIn() && resource.data.members[request.auth.uid] == true;
+      }
+
+      // Joining a list by code: a new member may add ONLY themselves to members
+      // and may not touch any other field.
+      function joiningSelf() {
+        return signedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+          && request.resource.data.members.diff(resource.data.members)
+               .affectedKeys().hasOnly([request.auth.uid])
+          && request.resource.data.members[request.auth.uid] == true
+          && request.resource.data.members.keys().size() <= 10;
+      }
+
+      // 'name' is optional. A list without one shows a title translated on each
+      // device, instead of freezing the creator's language for everybody.
+      function validList() {
+        return request.resource.data.keys().hasOnly(['name', 'code', 'members', 'createdAt'])
+          && (!('name' in request.resource.data) || (
+               request.resource.data.name is string
+               && request.resource.data.name.size() > 0
+               && request.resource.data.name.size() <= 60))
+          && request.resource.data.code is string
+          && request.resource.data.code.size() == 6
+          && request.resource.data.members.keys().size() <= 10;
+      }
+
+      allow read: if isMember();
+      allow create: if signedIn()
+        && validList()
+        && request.resource.data.members.keys().hasOnly([request.auth.uid]);
+      allow update: if (isMember() && validList()) || joiningSelf();
+      allow delete: if false;
+
+      match /items/{itemId} {
+
+        function memberOfList() {
+          return signedIn()
+            && get(/databases/$(database)/documents/lists/$(listId))
+                 .data.members[request.auth.uid] == true;
+        }
+
+        function validItem() {
+          return request.resource.data.keys().hasOnly(['name', 'dept', 'done', 'createdAt'])
+            && request.resource.data.name is string
+            && request.resource.data.name.size() > 0
+            && request.resource.data.name.size() <= 80
+            && request.resource.data.dept is string
+            && request.resource.data.dept.size() <= 30
+            && request.resource.data.done is bool;
+        }
+
+        allow read, delete: if memberOfList();
+        allow create, update: if memberOfList() && validItem();
+      }
+    }
+
+    // Reverse index code -> listId. Someone joining has to turn the code into a
+    // listId before they are allowed to read the list itself, which is why this
+    // is a separate collection.
+    match /codes/{code} {
+      // get, not list — asking about one known code is fine, but browsing the
+      // whole collection (and harvesting codes) is not.
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['listId'])
+        && request.resource.data.listId is string
+        && request.resource.data.listId.size() <= 40
+        && code.size() == 6;
+
+      // Once a code points at a list it never changes meaning — otherwise
+      // someone could redirect another person's invite code to their own list.
+      allow update, delete: if false;
+    }
+  }
+}

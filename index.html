@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jeszcze Mleko</title>
+  <meta name="description" content="A shared shopping list that syncs across devices.">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+
+<!-- Texts below are the English defaults; i18n.js swaps them on load via the
+     data-i18n attributes, so the markup stays the source of truth. -->
+
+<!-- ===================== Screen 1: loading ===================== -->
+<section id="screen-loading" class="screen">
+  <div class="centered">
+    <div class="logo">🥛</div>
+    <p class="muted" id="loading-text" data-i18n="loading.connecting">Connecting…</p>
+  </div>
+</section>
+
+<!-- ===================== Screen 2: welcome ===================== -->
+<section id="screen-welcome" class="screen" hidden>
+  <div class="centered welcome">
+    <div class="logo">🥛</div>
+    <h1>Jeszcze Mleko</h1>
+    <p class="muted" data-i18n="app.tagline">A shared shopping list for the whole household.</p>
+
+    <button id="btn-create" class="btn btn-primary btn-block"
+            data-i18n="welcome.create">Create a new list</button>
+
+    <div class="divider"><span data-i18n="welcome.orJoin">or join an existing one</span></div>
+
+    <form id="form-join" class="join-row">
+      <input id="input-code" class="input code-input" type="text" inputmode="latin"
+             autocomplete="off" autocapitalize="characters" spellcheck="false"
+             maxlength="6" placeholder="CODE"
+             data-i18n-placeholder="welcome.codePlaceholder"
+             data-i18n-aria-label="welcome.codeLabel" aria-label="Invite code">
+      <button class="btn" type="submit" data-i18n="welcome.join">Join</button>
+    </form>
+
+    <p id="welcome-error" class="error" role="alert" hidden></p>
+  </div>
+</section>
+
+<!-- ===================== Screen 3: list ===================== -->
+<section id="screen-list" class="screen screen-list" hidden>
+  <header class="topbar">
+    <h1 id="list-title">Shopping list</h1>
+    <div class="topbar-actions">
+      <button id="btn-clear-done" class="btn btn-ghost" hidden
+              data-i18n="list.clearDone">Clear bought</button>
+      <button id="btn-settings" class="btn btn-icon"
+              data-i18n-aria-label="list.settings" data-i18n-title="list.settings"
+              aria-label="Settings" title="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <div id="offline-banner" class="banner" hidden
+       data-i18n="list.offline">No connection — changes will sync later.</div>
+
+  <main id="items" class="items" aria-live="polite">
+    <p id="empty-state" class="empty muted" hidden
+       data-i18n="list.empty">The list is empty. Add your first item below.</p>
+  </main>
+
+  <form id="form-add" class="composer">
+    <input id="input-item" class="input" type="text" autocomplete="off"
+           enterkeyhint="done" maxlength="80" placeholder="Add an item…"
+           data-i18n-placeholder="list.addPlaceholder"
+           data-i18n-aria-label="list.addLabel" aria-label="Item name">
+    <button class="btn btn-primary btn-icon" type="submit"
+            data-i18n-aria-label="list.add" aria-label="Add">+</button>
+  </form>
+</section>
+
+<!-- ===================== Settings sheet ===================== -->
+<div id="settings" class="sheet-backdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <h2 id="settings-title" data-i18n="settings.title">Settings</h2>
+
+    <p class="muted" data-i18n="settings.codeIntro">Invite code — share it so others can join this list:</p>
+    <div class="code-box">
+      <code id="settings-code">------</code>
+      <button id="btn-copy-code" class="btn" data-i18n="settings.copy">Copy</button>
+    </div>
+
+    <p class="warn" data-i18n="settings.warning">Your access is stored only in this browser. If you clear site data, this code is the only way back to the list — write it down somewhere.</p>
+
+    <label class="field">
+      <span class="muted" data-i18n="settings.language">Language</span>
+      <select id="select-language" class="input">
+        <option value="auto" data-i18n="settings.languageAuto">Automatic (browser)</option>
+        <option value="en">English</option>
+        <option value="pl">Polski</option>
+      </select>
+    </label>
+
+    <div class="sheet-actions">
+      <button id="btn-leave" class="btn btn-danger" data-i18n="settings.leave">Leave list</button>
+      <button id="btn-close-settings" class="btn" data-i18n="settings.close">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
