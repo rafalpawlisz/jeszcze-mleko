@@ -539,9 +539,32 @@ async function toggleItem(item) {
   }
 }
 
+// Everything needed to put a deleted item back exactly as it was. The rules only
+// accept these four fields, and createdAt is still null for a write that has not
+// reached the server yet.
+function backupOf(item) {
+  return {
+    id: item.id,
+    data: {
+      name: item.name,
+      dept: item.dept,
+      done: !!item.done,
+      createdAt: item.createdAt ?? serverTimestamp(),
+    },
+  };
+}
+
 async function removeItem(item) {
+  const backup = backupOf(item);
+
   try {
     await deleteDoc(doc(itemsCollection(), item.id));
+    // The delete button sits right next to the row and is easy to hit by
+    // accident, so it gets the same safety net as clearing bought items.
+    toast(t('item.removed', { name: item.name }), {
+      label: t('action.undo'),
+      onClick: () => restoreItems([backup]),
+    });
   } catch (error) {
     console.error('Could not delete the item', error);
     toast(describeError(error));
@@ -555,14 +578,12 @@ async function clearDone() {
 
   // No confirmation dialog: the action happens straight away and is undoable for
   // a few seconds. A prompt people click through blindly protects nobody.
-  const backup = done.map(({ id, name, dept, createdAt }) => ({
-    id, data: { name, dept, done: true, createdAt: createdAt ?? serverTimestamp() },
-  }));
+  const backup = done.map(backupOf);
 
   try {
     await inBatches(done, (batch, item) => batch.delete(doc(itemsCollection(), item.id)));
     toast(t('clear.done', { count: done.length }), {
-      label: t('clear.undo'),
+      label: t('action.undo'),
       onClick: () => restoreItems(backup),
     });
   } catch (error) {
@@ -577,7 +598,7 @@ async function restoreItems(backup) {
     // reappear exactly where they were.
     await inBatches(backup, (batch, entry) =>
       batch.set(doc(itemsCollection(), entry.id), entry.data));
-    toast(t('clear.undone'));
+    toast(t('action.undone'));
   } catch (error) {
     console.error('Restoring items failed', error);
     toast(describeError(error));

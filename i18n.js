@@ -38,13 +38,14 @@ const STRINGS = {
     'list.clearDoneCount': 'Clear bought ({count})',
 
     'item.delete': 'Delete {name}',
+    'item.removed': 'Removed {name}.',
 
     'clear.done': {
       one: 'Removed 1 item.',
       other: 'Removed {count} items.',
     },
-    'clear.undo': 'Undo',
-    'clear.undone': 'Restored.',
+    'action.undo': 'Undo',
+    'action.undone': 'Restored.',
 
     'dialog.confirm': 'Confirm',
     'dialog.cancel': 'Cancel',
@@ -114,6 +115,7 @@ const STRINGS = {
     'list.clearDoneCount': 'Wyczyść kupione ({count})',
 
     'item.delete': 'Usuń {name}',
+    'item.removed': 'Usunięto {name}.',
 
     'clear.done': {
       one: 'Usunięto 1 produkt.',
@@ -121,8 +123,8 @@ const STRINGS = {
       many: 'Usunięto {count} produktów.',
       other: 'Usunięto {count} produktów.',
     },
-    'clear.undo': 'Cofnij',
-    'clear.undone': 'Przywrócono.',
+    'action.undo': 'Cofnij',
+    'action.undone': 'Przywrócono.',
 
     'dialog.confirm': 'Potwierdź',
     'dialog.cancel': 'Anuluj',
