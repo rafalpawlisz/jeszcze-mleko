@@ -110,6 +110,15 @@ const el = {
   btnCloseSettings: $('btn-close-settings'),
   selectLanguage: $('select-language'),
   toast: $('toast'),
+  toastMessage: $('toast-message'),
+  toastAction: $('toast-action'),
+  dialog: $('dialog'),
+  dialogTitle: $('dialog-title'),
+  dialogMessage: $('dialog-message'),
+  dialogConfirm: $('dialog-confirm'),
+  dialogCancel: $('dialog-cancel'),
+  installHint: $('install-hint'),
+  btnDismissHint: $('btn-dismiss-hint'),
 };
 
 // The markup ships English defaults; swap them for the detected language before
@@ -124,11 +133,41 @@ function showScreen(name) {
 }
 
 let toastTimer = null;
-function toast(message) {
-  el.toast.textContent = message;
+
+// action, when given, is { label, onClick } and turns the toast into the undo
+// affordance — which is what lets destructive actions skip a confirmation.
+function toast(message, action = null) {
+  el.toastMessage.textContent = message;
+  el.toastAction.hidden = !action;
+  if (action) {
+    el.toastAction.textContent = action.label;
+    el.toastAction.onclick = () => {
+      el.toast.hidden = true;
+      clearTimeout(toastTimer);
+      action.onClick();
+    };
+  }
+
   el.toast.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.toast.hidden = true; }, 2600);
+  toastTimer = setTimeout(() => { el.toast.hidden = true; }, action ? 6000 : 2600);
+}
+
+// Promise-based replacement for confirm(). The native dialog on iOS shows the
+// bare domain name and cannot be styled; <dialog> gives us Escape handling and
+// focus trapping for free.
+function confirmDialog({ title, message, confirmLabel }) {
+  el.dialogTitle.textContent = title;
+  el.dialogMessage.textContent = message;
+  el.dialogConfirm.textContent = confirmLabel ?? t('dialog.confirm');
+
+  return new Promise((resolve) => {
+    el.dialog.addEventListener('close', () => {
+      resolve(el.dialog.returnValue === 'confirm');
+    }, { once: true });
+    el.dialog.showModal();
+    el.dialogCancel.focus(); // safer default than the destructive button
+  });
 }
 
 function showWelcomeError(message) {
@@ -243,8 +282,13 @@ async function joinList(rawCode) {
   }
 }
 
-function leaveList() {
-  if (!confirm(t('settings.leaveConfirm'))) return;
+async function leaveList() {
+  const confirmed = await confirmDialog({
+    title: t('settings.leaveTitle'),
+    message: t('settings.leaveConfirm'),
+    confirmLabel: t('settings.leave'),
+  });
+  if (!confirmed) return;
 
   state.unsubscribeList?.();
   state.unsubscribeItems?.();
@@ -315,11 +359,25 @@ function openList(listId) {
 
 const DEPARTMENT_ORDER = new Map(DEPARTMENTS.map((d, index) => [d.id, index]));
 
+// Rows and headings are kept and reused, keyed by item id and department id.
+//
+// Rebuilding the list from scratch on every snapshot was the obvious first
+// approach, but it is wrong in a live-synced app: a single added item produces
+// two snapshots milliseconds apart (the local write, then the server
+// confirmation), so a freshly created row was thrown away mid-animation. The
+// same throw-away also drops keyboard focus and would make touch gestures
+// impossible, because the element under the finger stops existing.
+const itemNodes = new Map();
+const deptNodes = new Map();
+
 function renderItems() {
   const items = state.items;
 
   el.emptyState.hidden = items.length > 0;
-  el.btnClearDone.hidden = !items.some((item) => item.done);
+
+  const doneCount = items.filter((item) => item.done).length;
+  el.btnClearDone.hidden = doneCount === 0;
+  el.btnClearDone.textContent = t('list.clearDoneCount', { count: doneCount });
 
   // Group by department, sort alphabetically, push bought items to the bottom
   // of their section.
@@ -330,7 +388,6 @@ function renderItems() {
     groups.get(dept).push(item);
   }
 
-  const fragment = document.createDocumentFragment();
   const orderedDepts = [...groups.keys()].sort(
     (a, b) => DEPARTMENT_ORDER.get(a) - DEPARTMENT_ORDER.get(b),
   );
@@ -338,57 +395,111 @@ function renderItems() {
   // Polish reader expects them.
   const collator = new Intl.Collator(getLocale());
 
-  for (const dept of orderedDepts) {
-    const info = departmentInfo(dept);
-    const heading = document.createElement('h2');
-    heading.className = 'dept-title';
-    // The department id is language-neutral; the label is resolved per viewer.
-    heading.textContent = `${info.icon} ${t(`dept.${info.id}`)}`;
-    fragment.append(heading);
+  const desired = [el.emptyState];
+  const liveIds = new Set();
 
-    const sorted = groups.get(dept).sort((a, b) => {
+  for (const dept of orderedDepts) {
+    const group = groups.get(dept).sort((a, b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
       return collator.compare(a.name, b.name);
     });
-    for (const item of sorted) fragment.append(renderItem(item));
+
+    desired.push(departmentHeading(dept, group.length));
+    for (const item of group) {
+      liveIds.add(item.id);
+      desired.push(itemRow(item));
+    }
   }
 
-  // Full re-render: a household list is a few dozen entries, so this is the
-  // simplest approach that always matches the state of the database.
-  el.items.replaceChildren(el.emptyState, fragment);
+  // Forget nodes whose data is gone, otherwise the caches grow forever.
+  for (const [id, node] of itemNodes) {
+    if (!liveIds.has(id)) { node.remove(); itemNodes.delete(id); }
+  }
+  for (const [dept, node] of deptNodes) {
+    if (!groups.has(dept)) { node.remove(); deptNodes.delete(dept); }
+  }
+
+  reorder(el.items, desired);
 }
 
-function renderItem(item) {
-  const row = document.createElement('div');
-  row.className = 'item';
-  if (item.done) row.classList.add('done');
-  if (item.pending) row.classList.add('pending');
+// Moves nodes into position rather than recreating them. Anything already in the
+// right place is left untouched, so running animations and focus survive.
+function reorder(parent, desired) {
+  desired.forEach((node, index) => {
+    if (parent.children[index] !== node) {
+      parent.insertBefore(node, parent.children[index] ?? null);
+    }
+  });
+  while (parent.children.length > desired.length) parent.lastElementChild.remove();
+}
 
-  const toggle = document.createElement('button');
-  toggle.className = 'item-toggle';
-  toggle.type = 'button';
+function departmentHeading(dept, count) {
+  let node = deptNodes.get(dept);
+  if (!node) {
+    node = document.createElement('h2');
+    node.className = 'dept-title';
+    const label = document.createElement('span');
+    const total = document.createElement('span');
+    total.className = 'dept-count';
+    node.append(label, total);
+    deptNodes.set(dept, node);
+  }
+
+  const info = departmentInfo(dept);
+  // The department id is language-neutral; the label is resolved per viewer.
+  node.firstElementChild.textContent = `${info.icon} ${t(`dept.${info.id}`)}`;
+  node.lastElementChild.textContent = count;
+  return node;
+}
+
+function itemRow(item) {
+  let node = itemNodes.get(item.id);
+  const isNew = !node;
+
+  if (isNew) {
+    node = document.createElement('div');
+    node.className = 'item is-new';
+    node.dataset.id = item.id;
+
+    const toggle = document.createElement('button');
+    toggle.className = 'item-toggle';
+    toggle.type = 'button';
+    toggle.dataset.action = 'toggle';
+    const box = document.createElement('span');
+    box.className = 'checkbox';
+    const name = document.createElement('span');
+    name.className = 'item-name';
+    toggle.append(box, name);
+
+    const remove = document.createElement('button');
+    remove.className = 'item-delete';
+    remove.type = 'button';
+    remove.dataset.action = 'delete';
+    remove.textContent = '✕';
+
+    node.append(toggle, remove);
+    itemNodes.set(item.id, node);
+  }
+
+  const [toggle, remove] = node.children;
+  const [box, name] = toggle.children;
+
+  if (!isNew && node.classList.contains('done') !== !!item.done) {
+    // Re-adding a class the element already had does nothing, so the animation
+    // has to be knocked off and restarted with a forced reflow in between.
+    node.classList.remove('just-toggled');
+    void node.offsetWidth;
+    node.classList.add('just-toggled');
+  }
+
+  node.classList.toggle('done', !!item.done);
+  node.classList.toggle('pending', !!item.pending);
   toggle.setAttribute('aria-pressed', String(!!item.done));
-
-  const box = document.createElement('span');
-  box.className = 'checkbox';
   box.textContent = item.done ? '✓' : '';
-
-  const name = document.createElement('span');
-  name.className = 'item-name';
   name.textContent = item.name; // textContent, not innerHTML — the name is data
-
-  toggle.append(box, name);
-  toggle.addEventListener('click', () => toggleItem(item));
-
-  const remove = document.createElement('button');
-  remove.className = 'item-delete';
-  remove.type = 'button';
-  remove.textContent = '✕';
   remove.setAttribute('aria-label', t('item.delete', { name: item.name }));
-  remove.addEventListener('click', () => removeItem(item));
 
-  row.append(toggle, remove);
-  return row;
+  return node;
 }
 
 // ============================================================================
@@ -442,21 +553,43 @@ async function clearDone() {
   const done = state.items.filter((item) => item.done);
   if (done.length === 0) return;
 
-  if (!confirm(t('clear.confirm', { count: done.length }))) return;
+  // No confirmation dialog: the action happens straight away and is undoable for
+  // a few seconds. A prompt people click through blindly protects nobody.
+  const backup = done.map(({ id, name, dept, createdAt }) => ({
+    id, data: { name, dept, done: true, createdAt: createdAt ?? serverTimestamp() },
+  }));
 
   try {
-    // writeBatch takes at most 500 operations, so we split into chunks.
-    for (let i = 0; i < done.length; i += 400) {
-      const batch = writeBatch(db);
-      for (const item of done.slice(i, i + 400)) {
-        batch.delete(doc(itemsCollection(), item.id));
-      }
-      await batch.commit();
-    }
-    toast(t('clear.done', { count: done.length }));
+    await inBatches(done, (batch, item) => batch.delete(doc(itemsCollection(), item.id)));
+    toast(t('clear.done', { count: done.length }), {
+      label: t('clear.undo'),
+      onClick: () => restoreItems(backup),
+    });
   } catch (error) {
     console.error('Clearing the list failed', error);
     toast(describeError(error));
+  }
+}
+
+async function restoreItems(backup) {
+  try {
+    // Restored under the original ids, so anyone else's screen sees the rows
+    // reappear exactly where they were.
+    await inBatches(backup, (batch, entry) =>
+      batch.set(doc(itemsCollection(), entry.id), entry.data));
+    toast(t('clear.undone'));
+  } catch (error) {
+    console.error('Restoring items failed', error);
+    toast(describeError(error));
+  }
+}
+
+// writeBatch takes at most 500 operations, so anything bigger is split up.
+async function inBatches(entries, apply) {
+  for (let i = 0; i < entries.length; i += 400) {
+    const batch = writeBatch(db);
+    for (const entry of entries.slice(i, i + 400)) apply(batch, entry);
+    await batch.commit();
   }
 }
 
@@ -516,6 +649,20 @@ el.formAdd.addEventListener('submit', (event) => {
   addItem(value);
 });
 
+// One delegated listener instead of two per row: rows are now long-lived, and
+// this way nothing has to be rebound when they are reused.
+el.items.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-action]');
+  if (!button) return;
+
+  const id = button.closest('.item')?.dataset.id;
+  const item = state.items.find((candidate) => candidate.id === id);
+  if (!item) return;
+
+  if (button.dataset.action === 'toggle') toggleItem(item);
+  else removeItem(item);
+});
+
 el.btnClearDone.addEventListener('click', clearDone);
 el.btnSettings.addEventListener('click', openSettings);
 el.btnCloseSettings.addEventListener('click', closeSettings);
@@ -531,9 +678,52 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !el.settings.hidden) closeSettings();
 });
 
+// <dialog> closes itself on Escape; these just record which button was used.
+el.dialogConfirm.addEventListener('click', () => el.dialog.close('confirm'));
+el.dialogCancel.addEventListener('click', () => el.dialog.close('cancel'));
+
+el.btnDismissHint.addEventListener('click', () => {
+  el.installHint.hidden = true;
+  try { localStorage.setItem(HINT_KEY, '1'); } catch { /* private mode */ }
+});
+
 // ============================================================================
-//  Network state and service worker
+//  iOS quirks, network state and service worker
 // ============================================================================
+
+const HINT_KEY = 'jeszcze-mleko:hintDismissed';
+
+// iOS does not shrink the layout viewport when the keyboard appears, so a
+// bottom-anchored composer ends up hidden underneath it. visualViewport reports
+// the actually visible area; the difference is handed to CSS as --keyboard.
+if (window.visualViewport) {
+  const viewport = window.visualViewport;
+  const updateKeyboardInset = () => {
+    const covered = window.innerHeight - (viewport.height + viewport.offsetTop);
+    document.documentElement.style.setProperty(
+      '--keyboard', `${Math.max(0, Math.round(covered))}px`);
+  };
+  viewport.addEventListener('resize', updateKeyboardInset);
+  viewport.addEventListener('scroll', updateKeyboardInset);
+  updateKeyboardInset();
+}
+
+// Safari has no install prompt — adding to the Home Screen is a manual gesture
+// nobody discovers on their own. It matters more than looks here: iOS evicts
+// storage for sites left unopened for a week, and an installed app is exempt,
+// so this hint is what keeps the anonymous session from quietly disappearing.
+function maybeShowInstallHint() {
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || navigator.standalone === true;
+
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(HINT_KEY) === '1'; } catch { /* private mode */ }
+
+  el.installHint.hidden = !(isIOS && !isStandalone && !dismissed);
+}
+maybeShowInstallHint();
 
 function updateOfflineBanner() {
   el.offlineBanner.hidden = navigator.onLine;

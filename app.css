@@ -12,6 +12,12 @@
   --danger: #dc2626;
   --radius: 12px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  /* Set from JS via visualViewport: how much of the viewport the on-screen
+     keyboard covers. iOS does not shrink the layout viewport for the keyboard,
+     so without this the composer ends up underneath it. */
+  --keyboard: 0px;
+  --speed: .18s;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,7 +43,16 @@ html, body {
   color: var(--text);
   font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  /* Stops Safari's rubber-band bounce from dragging the whole app around. */
+  overscroll-behavior: none;
 }
+
+/* Removes the tap delay and, more importantly on iOS, double-tap-to-zoom on
+   controls that are meant to be tapped repeatedly. */
+button, input, select, .item-toggle { touch-action: manipulation; }
+
+/* iOS zooms the page whenever a focused field is under 16px. Never go smaller. */
+input, select, textarea { font-size: 16px; }
 
 h1 { font-size: 1.15rem; margin: 0; }
 h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
@@ -147,8 +162,27 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 
 /* ---------- list screen ---------- */
 
-.screen-list { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+/* dvh follows Safari's collapsing URL bar; vh is the fallback for old iOS.
+   padding-bottom reserves room for the keyboard (border-box keeps the height). */
+.screen-list {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding-bottom: var(--keyboard);
+}
 .screen-list[hidden] { display: none; }
+
+/* On a wide screen a full-bleed list looks like an unfinished spreadsheet.
+   Keep it to a phone-ish column and frame it. */
+@media (min-width: 720px) {
+  .screen-list {
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    margin: 0 auto;
+    max-width: 680px;
+  }
+}
 
 .topbar {
   align-items: center;
@@ -157,7 +191,9 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   display: flex;
   gap: .5rem;
   padding: .75rem 1rem;
-  padding-top: calc(.75rem + env(safe-area-inset-top, 0px));
+  padding-top: calc(.75rem + var(--safe-top));
+  padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0px));
 }
 .topbar h1 { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-actions { align-items: center; display: flex; gap: .25rem; }
@@ -170,18 +206,47 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   text-align: center;
 }
 
-.items { flex: 1; overflow-y: auto; padding: .5rem 0 1rem; }
+.items {
+  flex: 1;
+  overflow-y: auto;
+  padding: .5rem 0 1rem;
+  /* Keeps a bounce inside the list from scrolling the page behind it. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 .empty { padding: 3rem 1.5rem; text-align: center; }
+.empty-icon { font-size: 2.5rem; line-height: 1; margin-bottom: .75rem; opacity: .55; }
+
+.banner-hint {
+  align-items: center;
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  text-align: left;
+}
+.banner-close {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+  font-size: .9rem;
+  padding: .25rem .4rem;
+}
 
 .dept-title {
+  align-items: baseline;
   color: var(--muted);
+  display: flex;
   font-size: .75rem;
   font-weight: 600;
+  gap: .5rem;
   letter-spacing: .06em;
   margin: 0;
   padding: 1rem 1rem .35rem;
   text-transform: uppercase;
 }
+.dept-count { font-weight: 400; opacity: .7; }
 
 .item {
   align-items: center;
@@ -215,11 +280,19 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   flex: none;
   height: 24px;
   place-items: center;
+  transition: background var(--speed), border-color var(--speed);
   width: 24px;
 }
+/* Only plays when the state actually changed, never on an unrelated re-render. */
+.item.just-toggled .checkbox { animation: pop calc(var(--speed) * 1.4) ease-out; }
 .item.done .checkbox { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
-.item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.item.done .item-name { color: var(--muted); text-decoration: line-through; }
+.item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--speed), opacity var(--speed);
+  white-space: nowrap;
+}
+.item.done .item-name { color: var(--muted); opacity: .7; text-decoration: line-through; }
 
 .item-delete {
   background: none;
@@ -235,13 +308,47 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 /* Row added offline — waiting for the server to confirm. */
 .item.pending { opacity: .6; }
 
+/* Plays once, for rows that were not on screen a moment ago. */
+.item.is-new { animation: slide-in var(--speed) ease-out; }
+
 .composer {
   background: var(--surface);
   border-top: 1px solid var(--border);
   display: flex;
   gap: .5rem;
   padding: .75rem 1rem;
+  /* The home indicator inset is irrelevant while the keyboard is up. */
   padding-bottom: calc(.75rem + var(--safe-bottom));
+  padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0px));
+}
+.screen-list:has(.composer:focus-within) .composer { padding-bottom: .75rem; }
+
+/* ---------- motion ---------- */
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop {
+  50% { transform: scale(1.25); }
+}
+@keyframes sheet-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse { 50% { opacity: .45; transform: scale(.94); } }
+
+.logo-pulse { animation: pulse 1.6s ease-in-out infinite; }
+
+/* Anything decorative is opt-out for people who asked the OS for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
 }
 
 /* ---------- settings sheet ---------- */
@@ -256,6 +363,8 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   z-index: 10;
 }
 .sheet-backdrop[hidden] { display: none; }
+.sheet-backdrop:not([hidden]) { animation: fade-in var(--speed) ease-out; }
+.sheet-backdrop:not([hidden]) .sheet { animation: sheet-up var(--speed) ease-out; }
 
 .sheet {
   background: var(--surface);
@@ -291,18 +400,52 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 
 .sheet-actions { display: flex; gap: .5rem; justify-content: space-between; margin-top: 1.25rem; }
 
+/* ---------- dialog ---------- */
+
+.dialog {
+  background: var(--surface);
+  border: 0;
+  border-radius: 16px;
+  color: var(--text);
+  max-width: min(420px, calc(100vw - 2rem));
+  padding: 1.25rem;
+  width: 100%;
+}
+.dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.dialog[open] { animation: sheet-up var(--speed) ease-out; }
+.dialog[open]::backdrop { animation: fade-in var(--speed) ease-out; }
+.dialog p { margin: 0; }
+
 /* ---------- toast ---------- */
 
 .toast {
+  align-items: center;
   background: var(--text);
   border-radius: var(--radius);
-  bottom: calc(5.5rem + var(--safe-bottom));
+  bottom: calc(5.5rem + var(--safe-bottom) + var(--keyboard));
   color: var(--bg);
+  display: flex;
   font-size: .9rem;
+  gap: .75rem;
   left: 50%;
-  padding: .65rem 1rem;
+  max-width: calc(100vw - 2rem);
+  padding: .65rem .75rem .65rem 1rem;
   position: fixed;
   transform: translateX(-50%);
   z-index: 20;
 }
+.toast:not([hidden]) { animation: slide-in var(--speed) ease-out; }
 .toast[hidden] { display: none; }
+
+.toast-action {
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: .25rem .5rem;
+  text-decoration: underline;
+}
+.toast-action[hidden] { display: none; }

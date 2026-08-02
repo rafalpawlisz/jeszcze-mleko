@@ -35,9 +35,23 @@ repository *is* what gets served.
 
 It is still worth restricting it, since the repo is public: [Google Cloud Console
 → Credentials](https://console.cloud.google.com/apis/credentials) → the "Browser
-key" → *Application restrictions* → **Websites** → add `localhost:*` and
-`YOUR-USERNAME.github.io/*`. The key then stops working if pasted onto somebody
-else's page.
+key" → *Application restrictions* → **Websites**. The key then stops working if
+pasted onto somebody else's page.
+
+The patterns must be full URLs, **with the scheme and a trailing `/*`**, and the
+dev port has to be spelled out:
+
+```
+http://localhost:8000/*
+https://YOUR-USERNAME.github.io/*
+```
+
+Getting this wrong locks you out of your own app. A bare host, or a port
+wildcard like `localhost:*`, does not match — sign-in then fails with
+`auth/requests-from-referer-…-are-blocked`, and App Check starts returning 403
+as well, because its token exchange uses the same key. Changes take a few
+minutes to propagate; if you need to unblock yourself right now, set
+*Application restrictions* back to **None**.
 
 Note what this does and does not buy you. The `Referer` header is set by the
 client, so `curl --referer` walks straight through it. This guards against
@@ -178,6 +192,37 @@ Adding a language means adding one object to `STRINGS` and one code to `LOCALES`
 heading. An item stores a department id (`nabial`), not a label, and a list stores
 no name at all; both are resolved at render time. Item names, of course, stay
 exactly as somebody typed them.
+
+### iOS and Safari
+
+Safari needs a handful of things the other browsers do not, and getting them
+wrong is mostly invisible until somebody actually uses an iPhone.
+
+**The keyboard.** iOS does not shrink the layout viewport when the on-screen
+keyboard appears, so a bottom-anchored composer simply ends up underneath it.
+`visualViewport` reports the genuinely visible area; the difference is published
+to CSS as `--keyboard` and reserved as padding on the list screen.
+
+**Safe areas.** `viewport-fit=cover` lets the app paint under the notch and the
+home indicator, and `env(safe-area-inset-*)` pays that back on the top bar, the
+composer and the sheets — including left/right, which matter in landscape.
+
+**Never below 16px in a field.** Safari zooms the whole page when a focused input
+has a smaller font. All inputs are pinned to 16px for that reason alone.
+
+**Home Screen icon and standalone mode.** Safari ignores the manifest for both,
+hence the `apple-touch-icon` (180×180) and the `apple-mobile-web-app-*` tags.
+
+**Storage eviction — the one that actually loses data.** iOS clears local storage
+for sites left unopened for about a week. The anonymous session and the saved
+list id live exactly there, so an occasional user of the app in Safari can come
+back to an empty welcome screen. Adding the app to the Home Screen exempts it,
+which is why the hint banner appears on iOS. It is also why the invite code is
+worth writing down.
+
+Everything above was verified in a Chromium-based browser. Layout, safe areas and
+the keyboard logic behave the same there, but **the real Safari behaviour —
+especially eviction and the Home Screen flow — can only be confirmed on a device**.
 
 ### Filing items into departments
 

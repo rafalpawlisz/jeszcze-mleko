@@ -35,17 +35,22 @@ const STRINGS = {
     'list.addLabel': 'Item name',
     'list.add': 'Add',
     'list.gone': 'This list no longer exists.',
+    'list.clearDoneCount': 'Clear bought ({count})',
 
     'item.delete': 'Delete {name}',
 
-    'clear.confirm': {
-      one: 'Remove the bought item from the list?',
-      other: 'Remove the {count} bought items from the list?',
-    },
     'clear.done': {
       one: 'Removed 1 item.',
       other: 'Removed {count} items.',
     },
+    'clear.undo': 'Undo',
+    'clear.undone': 'Restored.',
+
+    'dialog.confirm': 'Confirm',
+    'dialog.cancel': 'Cancel',
+
+    'install.hint': 'Add to your Home Screen: Share → Add to Home Screen.',
+    'install.dismiss': 'Dismiss',
 
     'settings.title': 'Settings',
     'settings.codeIntro': 'Invite code — share it so others can join this list:',
@@ -56,7 +61,8 @@ const STRINGS = {
     'settings.language': 'Language',
     'settings.languageAuto': 'Automatic (browser)',
     'settings.leave': 'Leave list',
-    'settings.leaveConfirm': 'Leave this list on this device? You can come back with the invite code.',
+    'settings.leaveTitle': 'Leave this list?',
+    'settings.leaveConfirm': 'It will be removed from this device only. You can come back with the invite code.',
     'settings.close': 'Close',
 
     'error.permissionDenied': 'Permission denied. Reload the page and try again.',
@@ -105,21 +111,24 @@ const STRINGS = {
     'list.addLabel': 'Nazwa produktu',
     'list.add': 'Dodaj',
     'list.gone': 'Lista już nie istnieje.',
+    'list.clearDoneCount': 'Wyczyść kupione ({count})',
 
     'item.delete': 'Usuń {name}',
 
-    'clear.confirm': {
-      one: 'Usunąć kupiony produkt z listy?',
-      few: 'Usunąć {count} kupione produkty z listy?',
-      many: 'Usunąć {count} kupionych produktów z listy?',
-      other: 'Usunąć {count} kupionych produktów z listy?',
-    },
     'clear.done': {
       one: 'Usunięto 1 produkt.',
       few: 'Usunięto {count} produkty.',
       many: 'Usunięto {count} produktów.',
       other: 'Usunięto {count} produktów.',
     },
+    'clear.undo': 'Cofnij',
+    'clear.undone': 'Przywrócono.',
+
+    'dialog.confirm': 'Potwierdź',
+    'dialog.cancel': 'Anuluj',
+
+    'install.hint': 'Dodaj do ekranu początkowego: Udostępnij → Do ekranu początkowego.',
+    'install.dismiss': 'Zamknij',
 
     'settings.title': 'Ustawienia',
     'settings.codeIntro': 'Kod zaproszenia — podaj go domownikom, żeby dołączyli do tej listy:',
@@ -130,7 +139,8 @@ const STRINGS = {
     'settings.language': 'Język',
     'settings.languageAuto': 'Automatycznie (przeglądarka)',
     'settings.leave': 'Opuść listę',
-    'settings.leaveConfirm': 'Opuścić listę na tym urządzeniu? Wrócisz na nią kodem zaproszenia.',
+    'settings.leaveTitle': 'Opuścić listę?',
+    'settings.leaveConfirm': 'Zniknie tylko z tego urządzenia. Wrócisz na nią kodem zaproszenia.',
     'settings.close': 'Zamknij',
 
     'error.permissionDenied': 'Brak uprawnień. Odśwież stronę i spróbuj ponownie.',

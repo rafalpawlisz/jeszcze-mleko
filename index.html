@@ -2,13 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!-- viewport-fit=cover lets the app paint under the notch and home indicator;
+       the CSS then pays that back with env(safe-area-inset-*). -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Jeszcze Mleko</title>
   <meta name="description" content="A shared shopping list that syncs across devices.">
-  <meta name="theme-color" content="#16a34a">
+
+  <!-- Tells the browser both schemes are handled, so native controls (the
+       language <select>) get the right colours instead of a white box. -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#16a34a" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1f24" media="(prefers-color-scheme: dark)">
+
+  <!-- iOS: run standalone once added to the home screen. Safari ignores the
+       manifest for this and for the icon, hence the Apple-specific tags. -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mleko">
+
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="stylesheet" href="./app.css">
 </head>
 <body>
@@ -19,7 +34,7 @@
 <!-- ===================== Screen 1: loading ===================== -->
 <section id="screen-loading" class="screen">
   <div class="centered">
-    <div class="logo">🥛</div>
+    <div class="logo logo-pulse">🥛</div>
     <p class="muted" id="loading-text" data-i18n="loading.connecting">Connecting…</p>
   </div>
 </section>
@@ -54,8 +69,7 @@
   <header class="topbar">
     <h1 id="list-title">Shopping list</h1>
     <div class="topbar-actions">
-      <button id="btn-clear-done" class="btn btn-ghost" hidden
-              data-i18n="list.clearDone">Clear bought</button>
+      <button id="btn-clear-done" class="btn btn-ghost" hidden>Clear bought</button>
       <button id="btn-settings" class="btn btn-icon"
               data-i18n-aria-label="list.settings" data-i18n-title="list.settings"
               aria-label="Settings" title="Settings">⚙️</button>
@@ -65,9 +79,19 @@
   <div id="offline-banner" class="banner" hidden
        data-i18n="list.offline">No connection — changes will sync later.</div>
 
+  <!-- Shown only in iOS Safari, outside standalone mode: on iOS this is also
+       what protects the stored session from being evicted. -->
+  <div id="install-hint" class="banner banner-hint" hidden>
+    <span data-i18n="install.hint">Add to your Home Screen: Share → Add to Home Screen.</span>
+    <button id="btn-dismiss-hint" class="banner-close"
+            data-i18n-aria-label="install.dismiss" aria-label="Dismiss">✕</button>
+  </div>
+
   <main id="items" class="items" aria-live="polite">
-    <p id="empty-state" class="empty muted" hidden
-       data-i18n="list.empty">The list is empty. Add your first item below.</p>
+    <div id="empty-state" class="empty" hidden>
+      <div class="empty-icon">🛒</div>
+      <p class="muted" data-i18n="list.empty">The list is empty. Add your first item below.</p>
+    </div>
   </main>
 
   <form id="form-add" class="composer">
@@ -109,7 +133,21 @@
   </div>
 </div>
 
-<div id="toast" class="toast" hidden></div>
+<!-- Native <dialog>: replaces confirm(), which on iOS shows the bare domain name
+     and cannot be styled at all. Escape and focus trapping come for free. -->
+<dialog id="dialog" class="dialog">
+  <h2 id="dialog-title"></h2>
+  <p id="dialog-message" class="muted"></p>
+  <div class="sheet-actions">
+    <button id="dialog-cancel" class="btn" value="cancel" data-i18n="dialog.cancel">Cancel</button>
+    <button id="dialog-confirm" class="btn btn-danger" value="confirm" data-i18n="dialog.confirm">Confirm</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" hidden>
+  <span id="toast-message"></span>
+  <button id="toast-action" class="toast-action" hidden></button>
+</div>
 
 <script type="module" src="./app.js"></script>
 </body>
