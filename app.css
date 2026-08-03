@@ -261,6 +261,14 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 }
 .dept-count { font-weight: 400; opacity: .7; }
 
+/* The bought section is a footer to the list, not another aisle — set apart so
+   the departments above read as what is still left to find. */
+.dept-title.is-bought {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1.25rem;
+}
+
 .item {
   align-items: center;
   background: var(--surface);

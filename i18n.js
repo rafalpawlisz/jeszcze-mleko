@@ -35,6 +35,7 @@ const STRINGS = {
     'list.add': 'Add',
     'list.suggestions': 'Suggestions',
     'list.gone': 'This list no longer exists.',
+    'list.bought': 'Bought',
     'list.clearDoneCount': 'Clear bought ({count})',
 
     'item.delete': 'Delete {name}',
@@ -112,6 +113,7 @@ const STRINGS = {
     'list.add': 'Dodaj',
     'list.suggestions': 'Podpowiedzi',
     'list.gone': 'Lista już nie istnieje.',
+    'list.bought': 'Kupione',
     'list.clearDoneCount': 'Wyczyść kupione ({count})',
 
     'item.delete': 'Usuń {name}',

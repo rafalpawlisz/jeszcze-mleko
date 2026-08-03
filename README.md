@@ -283,6 +283,12 @@ truskawki" would land in produce (because `truskawk` is longer than `mrozon`) an
 The department is written into the item document at the moment it is added. A
 later change to the dictionary will not reshuffle somebody's list mid-shop.
 
+Checking something off takes it out of its department and into a single **Bought**
+section at the very bottom. Once an item is in the basket its aisle stops
+mattering, and the departments above then read as exactly what is still left to
+find. The section is view-only — nothing about it is stored, and unchecking an
+item sends it straight back to its department.
+
 Want your own products in there? Add a stem to the right array in `KEYWORDS`.
 
 ---

@@ -400,10 +400,17 @@ function renderItems() {
   el.btnClearDone.setAttribute('aria-label', clearLabel);
   el.btnClearDone.title = clearLabel;
 
-  // Group by department, sort alphabetically, push bought items to the bottom
-  // of their section.
+  // Bought items leave their department entirely and collect in one section at
+  // the very bottom: once something is in the basket its aisle no longer matters,
+  // and the remaining departments should read as what is still left to find.
   const groups = new Map();
+  const bought = [];
+
   for (const item of items) {
+    if (item.done) {
+      bought.push(item);
+      continue;
+    }
     const dept = DEPARTMENT_ORDER.has(item.dept) ? item.dept : 'inne';
     if (!groups.has(dept)) groups.set(dept, []);
     groups.get(dept).push(item);
@@ -419,25 +426,40 @@ function renderItems() {
   const desired = [el.emptyState];
   const liveIds = new Set();
 
-  for (const dept of orderedDepts) {
-    const group = groups.get(dept).sort((a, b) => {
-      if (a.done !== b.done) return a.done ? 1 : -1;
-      return collator.compare(a.name, b.name);
-    });
+  const byName = (a, b) => collator.compare(a.name, b.name);
 
-    desired.push(departmentHeading(dept, group.length));
+  const pushSection = (heading, group) => {
+    desired.push(heading);
     for (const item of group) {
       liveIds.add(item.id);
       desired.push(itemRow(item));
     }
+  };
+
+  for (const dept of orderedDepts) {
+    const group = groups.get(dept).sort(byName);
+    const info = departmentInfo(dept);
+    // The department id is language-neutral; the label is resolved per viewer.
+    pushSection(
+      sectionHeading(dept, `${info.icon} ${t(`dept.${info.id}`)}`, group.length),
+      group,
+    );
+  }
+
+  if (bought.length > 0) {
+    pushSection(
+      sectionHeading(BOUGHT_SECTION, `✅ ${t('list.bought')}`, bought.length, true),
+      bought.sort(byName),
+    );
   }
 
   // Forget nodes whose data is gone, otherwise the caches grow forever.
   for (const [id, node] of itemNodes) {
     if (!liveIds.has(id)) { node.remove(); itemNodes.delete(id); }
   }
-  for (const [dept, node] of deptNodes) {
-    if (!groups.has(dept)) { node.remove(); deptNodes.delete(dept); }
+  for (const [key, node] of deptNodes) {
+    const stillUsed = key === BOUGHT_SECTION ? bought.length > 0 : groups.has(key);
+    if (!stillUsed) { node.remove(); deptNodes.delete(key); }
   }
 
   reorder(el.items, desired);
@@ -454,21 +476,23 @@ function reorder(parent, desired) {
   while (parent.children.length > desired.length) parent.lastElementChild.remove();
 }
 
-function departmentHeading(dept, count) {
-  let node = deptNodes.get(dept);
+// Reserved key for the bought section. Not a department: departments are ids
+// stored in documents, and this one exists only in the view.
+const BOUGHT_SECTION = '__bought__';
+
+function sectionHeading(key, text, count, isBought = false) {
+  let node = deptNodes.get(key);
   if (!node) {
     node = document.createElement('h2');
-    node.className = 'dept-title';
+    node.className = isBought ? 'dept-title is-bought' : 'dept-title';
     const label = document.createElement('span');
     const total = document.createElement('span');
     total.className = 'dept-count';
     node.append(label, total);
-    deptNodes.set(dept, node);
+    deptNodes.set(key, node);
   }
 
-  const info = departmentInfo(dept);
-  // The department id is language-neutral; the label is resolved per viewer.
-  node.firstElementChild.textContent = `${info.icon} ${t(`dept.${info.id}`)}`;
+  node.firstElementChild.textContent = text;
   node.lastElementChild.textContent = count;
   return node;
 }
