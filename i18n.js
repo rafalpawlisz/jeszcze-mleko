@@ -34,6 +34,7 @@ const STRINGS = {
     'list.addPlaceholder': 'Add an item…',
     'list.addLabel': 'Item name',
     'list.add': 'Add',
+    'list.suggestions': 'Suggestions',
     'list.gone': 'This list no longer exists.',
     'list.clearDoneCount': 'Clear bought ({count})',
 
@@ -111,6 +112,7 @@ const STRINGS = {
     'list.addPlaceholder': 'Dodaj produkt…',
     'list.addLabel': 'Nazwa produktu',
     'list.add': 'Dodaj',
+    'list.suggestions': 'Podpowiedzi',
     'list.gone': 'Lista już nie istnieje.',
     'list.clearDoneCount': 'Wyczyść kupione ({count})',
 

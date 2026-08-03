@@ -94,6 +94,11 @@
     </div>
   </main>
 
+  <!-- Filled from history.js while typing; hidden when there is nothing to offer,
+       so it never steals height from the list. -->
+  <div id="suggestions" class="suggestions" hidden
+       data-i18n-aria-label="list.suggestions" aria-label="Suggestions"></div>
+
   <form id="form-add" class="composer">
     <input id="input-item" class="input" type="text" autocomplete="off"
            enterkeyhint="done" maxlength="80" placeholder="Add an item…"

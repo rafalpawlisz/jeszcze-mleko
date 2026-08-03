@@ -224,6 +224,35 @@ Everything above was verified in a Chromium-based browser. Layout, safe areas an
 the keyboard logic behave the same there, but **the real Safari behaviour —
 especially eviction and the Home Screen flow — can only be confirmed on a device**.
 
+### Suggestions while typing
+
+A household buys the same things over and over, so typing an item in full every
+week is wasted effort. [`history.js`](history.js) remembers what has been added
+and offers matches as a row of taps above the input.
+
+The history lives in `localStorage`, **per device**. That needs no security
+rules, no writes and no network — the trade-off is that each phone learns
+separately. To stop a freshly joined device from starting empty, the first items
+snapshot seeds the history with whatever is already on the shared list; seeded
+names carry a zero count, so anything actually typed on this device outranks them.
+
+Matching reuses `normalize()` from the department dictionary, so `zol` finds
+"ser żółty" — a single word matches as a word prefix, a query with a space
+matches anywhere. Ranking is by frequency, then recency. Names already on the
+list are filtered out, since suggesting them would only create duplicates.
+
+Tapping a suggestion adds the item outright rather than filling the field: on a
+phone the number of taps is what matters, and the department is derived from the
+name anyway.
+
+Deliberately not a `<datalist>`. It would have been a single attribute, but its
+behaviour on iOS Safari cannot be verified from a development machine, and this
+is the one control that has to work on a phone.
+
+The three exported functions are the whole storage contract, so moving the
+history into a shared Firestore document later means reimplementing them and
+touching nothing else.
+
 ### Filing items into departments
 
 [`departments.js`](departments.js) holds a dictionary of word **stems**, not full
@@ -270,6 +299,7 @@ project in Google Cloud.
 | [`app.js`](app.js) | auth, App Check, Firestore, sync, rendering |
 | [`departments.js`](departments.js) | bilingual department dictionary and name matching |
 | [`i18n.js`](i18n.js) | interface strings, language detection, plurals |
+| [`history.js`](history.js) | per-device suggestion history behind three functions |
 | [`app.css`](app.css) | styles, mobile-first, automatic dark mode |
 | [`sw.js`](sw.js) | service worker — offline support and installability |
 | [`firestore.rules`](firestore.rules) | rules to paste into the Firebase console |

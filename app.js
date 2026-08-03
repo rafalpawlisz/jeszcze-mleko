@@ -26,6 +26,7 @@ import {
 
 import { firebaseConfig, recaptchaSiteKey } from './firebase-config.js';
 import { DEPARTMENTS, departmentInfo, guessDepartment } from './departments.js';
+import { record, seed, suggest } from './history.js';
 import {
   t,
   getLocale,
@@ -103,6 +104,7 @@ const el = {
   emptyState: $('empty-state'),
   formAdd: $('form-add'),
   inputItem: $('input-item'),
+  suggestions: $('suggestions'),
   settings: $('settings'),
   settingsCode: $('settings-code'),
   btnCopyCode: $('btn-copy-code'),
@@ -339,6 +341,8 @@ function openList(listId) {
     },
   );
 
+  let seeded = false;
+
   state.unsubscribeItems = onSnapshot(
     collection(db, 'lists', listId, 'items'),
     (snap) => {
@@ -347,6 +351,14 @@ function openList(listId) {
         pending: d.metadata.hasPendingWrites,
         ...d.data(),
       }));
+
+      // First snapshot doubles as the seed for suggestions, so a device that has
+      // just joined an existing list is not starting with an empty history.
+      if (!seeded) {
+        seeded = true;
+        seed(state.items.map((item) => item.name));
+      }
+
       renderItems();
     },
     (error) => console.error('Items subscription dropped', error),
@@ -514,6 +526,10 @@ async function addItem(rawName) {
   const name = rawName.trim().replace(/\s+/g, ' ');
   if (!name || !state.listId) return;
 
+  // Recorded before the write, not after: offline the addDoc promise stays
+  // pending until the network returns, and suggestions should work offline too.
+  record(name);
+
   // The department is resolved once, when the item is added, and stored on the
   // document. If the dictionary changes later, nobody's list gets reshuffled
   // in the middle of a shopping trip.
@@ -638,6 +654,28 @@ async function copyCode() {
   }
 }
 
+// ============================================================================
+//  Suggestions
+// ============================================================================
+
+function renderSuggestions() {
+  const names = suggest(el.inputItem.value, state.items.map((item) => item.name));
+
+  el.suggestions.hidden = names.length === 0;
+  el.suggestions.replaceChildren(...names.map((name) => {
+    const chip = document.createElement('button');
+    chip.className = 'suggestion';
+    chip.type = 'button';
+    chip.textContent = name;
+    return chip;
+  }));
+}
+
+function clearSuggestions() {
+  el.suggestions.hidden = true;
+  el.suggestions.replaceChildren();
+}
+
 // Changing the language re-translates the markup and re-renders the list, since
 // department headings and the sort order both depend on it.
 function changeLanguage(preference) {
@@ -667,7 +705,22 @@ el.formAdd.addEventListener('submit', (event) => {
   const value = el.inputItem.value;
   el.inputItem.value = '';
   el.inputItem.focus(); // keeps the keyboard up — easier to add items in a row
+  clearSuggestions();
   addItem(value);
+});
+
+el.inputItem.addEventListener('input', renderSuggestions);
+
+// One tap adds the item outright instead of filling the field: on a phone the
+// number of taps is what matters, and the department is derived from the name.
+el.suggestions.addEventListener('click', (event) => {
+  const chip = event.target.closest('.suggestion');
+  if (!chip) return;
+
+  el.inputItem.value = '';
+  el.inputItem.focus();
+  clearSuggestions();
+  addItem(chip.textContent);
 });
 
 // One delegated listener instead of two per row: rows are now long-lived, and

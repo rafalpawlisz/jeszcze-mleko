@@ -311,6 +311,40 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 /* Plays once, for rows that were not on screen a moment ago. */
 .item.is-new { animation: slide-in var(--speed) ease-out; }
 
+/* A single scrollable row of taps above the composer. Deliberately not a
+   <datalist>: its behaviour on iOS Safari cannot be verified from here, and this
+   is the one control that has to work on a phone. */
+.suggestions {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  padding: .5rem 1rem;
+  padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0px));
+  scrollbar-width: none;
+}
+.suggestions[hidden] { display: none; }
+.suggestions::-webkit-scrollbar { display: none; }
+
+.suggestion {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  cursor: pointer;
+  flex: none;
+  font: inherit;
+  font-size: .9rem;
+  max-width: 60vw;
+  overflow: hidden;
+  padding: .4rem .85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.suggestion:active { opacity: .65; }
+
 .composer {
   background: var(--surface);
   border-top: 1px solid var(--border);

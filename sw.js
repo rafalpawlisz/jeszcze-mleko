@@ -2,7 +2,7 @@
 //
 // IMPORTANT: bump CACHE_VERSION after every change to the app files, otherwise
 // users keep getting the old version.
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = `jeszcze-mleko-${CACHE_VERSION}`;
 
 // On localhost cache-first would be a trap: after every edit the browser would
@@ -17,6 +17,7 @@ const APP_SHELL = [
   './app.css',
   './app.js',
   './departments.js',
+  './history.js',
   './i18n.js',
   './firebase-config.js',
   './manifest.webmanifest',
