@@ -241,6 +241,16 @@ Matching reuses `normalize()` from the department dictionary, so `zol` finds
 matches anywhere. Ranking is by frequency, then recency. Names already on the
 list are filtered out, since suggesting them would only create duplicates.
 
+**Typos expire.** A name added exactly once and never again is most likely a
+mistake, and the 200-entry cap will never be reached by a household list, so
+without an expiry "sos pomidorowt" would be offered forever. One-off entries are
+dropped after 60 days; anything used twice or more is treated as real and never
+expires. Note this is cleanup rather than prevention — a fresh typo is still
+suggested until it ages out, though a name bought regularly outranks it. The
+complete answer would be to require a repeat before suggesting at all, which was
+weighed and deliberately not taken: it would delay the feature's usefulness for
+every genuinely new product.
+
 Tapping a suggestion adds the item outright rather than filling the field: on a
 phone the number of taps is what matters, and the department is derived from the
 name anyway.

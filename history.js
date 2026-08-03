@@ -13,8 +13,18 @@ const STORAGE_KEY = 'jeszcze-mleko:history';
 const MAX_ENTRIES = 200;
 const MAX_SUGGESTIONS = 4;
 
+// A name added exactly once and never again is most likely a typo. The 200-entry
+// cap will never be reached by a household list, so without an expiry such a
+// mistake would be suggested forever. Names used at least twice are treated as
+// real and never expire.
+//
+// Note this is cleanup, not prevention: a typo is still suggested until it ages
+// out. Ranking helps — a name bought regularly outranks a one-off — but the only
+// complete answer would be requiring a repeat before suggesting at all.
+const ONE_OFF_MAX_AGE_MS = 60 * 24 * 60 * 60 * 1000; // 60 days
+
 // key (normalized name) -> { name, count, usedAt }
-let entries = load();
+let entries = prune(load());
 
 function load() {
   try {
@@ -27,7 +37,17 @@ function load() {
   }
 }
 
+function prune(map) {
+  const now = Date.now();
+  for (const [key, entry] of map) {
+    if (entry.count < 2 && now - entry.usedAt > ONE_OFF_MAX_AGE_MS) map.delete(key);
+  }
+  return map;
+}
+
 function save() {
+  prune(entries);
+
   // Frequent first, then recent. Anything past the cap is not worth keeping.
   const kept = [...entries.entries()]
     .sort(([, a], [, b]) => b.count - a.count || b.usedAt - a.usedAt)
@@ -57,13 +77,17 @@ export function record(name) {
 
 // Names already on the shared list, added with a zero count: they rank below
 // anything actually typed here, but a brand new device still has suggestions.
+//
+// usedAt is now, not 0 — these were seen on the list at this moment, and a zero
+// would make every seeded name instantly older than the expiry window.
 export function seed(names) {
   let changed = false;
+  const now = Date.now();
 
   for (const name of names) {
     const key = normalize(name);
     if (!key || entries.has(key)) continue;
-    entries.set(key, { name, count: 0, usedAt: 0 });
+    entries.set(key, { name, count: 0, usedAt: now });
     changed = true;
   }
 
