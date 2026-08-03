@@ -67,14 +67,21 @@ service cloud.firestore {
                  .data.members[request.auth.uid] == true;
         }
 
+        // qty is optional and only ever present when it is 2 or more: one is the
+        // default and is left out entirely, so an ordinary item looks exactly
+        // as it did before quantities existed.
         function validItem() {
-          return request.resource.data.keys().hasOnly(['name', 'dept', 'done', 'createdAt'])
+          return request.resource.data.keys().hasOnly(['name', 'dept', 'done', 'createdAt', 'qty'])
             && request.resource.data.name is string
             && request.resource.data.name.size() > 0
             && request.resource.data.name.size() <= 80
             && request.resource.data.dept is string
             && request.resource.data.dept.size() <= 30
-            && request.resource.data.done is bool;
+            && request.resource.data.done is bool
+            && (!('qty' in request.resource.data) || (
+                 request.resource.data.qty is int
+                 && request.resource.data.qty > 1
+                 && request.resource.data.qty <= 999));
         }
 
         allow read, delete: if memberOfList();

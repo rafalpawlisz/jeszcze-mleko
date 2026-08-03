@@ -105,6 +105,7 @@ const el = {
   emptyState: $('empty-state'),
   formAdd: $('form-add'),
   inputItem: $('input-item'),
+  inputQty: $('input-qty'),
   suggestions: $('suggestions'),
   settings: $('settings'),
   settingsCode: $('settings-code'),
@@ -578,7 +579,9 @@ function itemRow(item) {
     box.className = 'checkbox';
     const name = document.createElement('span');
     name.className = 'item-name';
-    toggle.append(box, name);
+    const qty = document.createElement('span');
+    qty.className = 'item-qty';
+    toggle.append(box, name, qty);
 
     const remove = document.createElement('button');
     remove.className = 'item-delete';
@@ -591,7 +594,7 @@ function itemRow(item) {
   }
 
   const [toggle, remove] = node.children;
-  const [box, name] = toggle.children;
+  const [box, name, qty] = toggle.children;
 
   if (!isNew && node.classList.contains('done') !== !!item.done) {
     // Re-adding a class the element already had does nothing, so the animation
@@ -606,6 +609,8 @@ function itemRow(item) {
   toggle.setAttribute('aria-pressed', String(!!item.done));
   box.textContent = item.done ? '✓' : '';
   name.textContent = item.name; // textContent, not innerHTML — the name is data
+  qty.hidden = !(item.qty > 1);
+  qty.textContent = item.qty > 1 ? `×${item.qty}` : '';
   remove.setAttribute('aria-label', t('item.delete', { name: item.name }));
 
   return node;
@@ -619,7 +624,15 @@ function itemsCollection() {
   return collection(db, 'lists', state.listId, 'items');
 }
 
-async function addItem(rawName) {
+// Blank, "1", or anything unparseable all mean one — and one is left out of the
+// document entirely, so an ordinary item is byte-for-byte what it was before
+// quantities existed and old items need no migration.
+function quantityFrom(raw) {
+  const qty = Number.parseInt(raw, 10);
+  return Number.isInteger(qty) && qty > 1 ? { qty: Math.min(qty, 999) } : {};
+}
+
+async function addItem(rawName, rawQty) {
   const name = rawName.trim().replace(/\s+/g, ' ');
   if (!name || !state.listId) return;
 
@@ -636,6 +649,7 @@ async function addItem(rawName) {
       dept: guessDepartment(name),
       done: false,
       createdAt: serverTimestamp(),
+      ...quantityFrom(rawQty),
     });
   } catch (error) {
     console.error('Could not add the item', error);
@@ -663,6 +677,7 @@ function backupOf(item) {
       dept: item.dept,
       done: !!item.done,
       createdAt: item.createdAt ?? serverTimestamp(),
+      ...quantityFrom(item.qty),
     },
   };
 }
@@ -800,10 +815,12 @@ el.inputCode.addEventListener('input', () => {
 el.formAdd.addEventListener('submit', (event) => {
   event.preventDefault();
   const value = el.inputItem.value;
+  const qty = el.inputQty.value;
   el.inputItem.value = '';
+  el.inputQty.value = '';
   el.inputItem.focus(); // keeps the keyboard up — easier to add items in a row
   clearSuggestions();
-  addItem(value);
+  addItem(value, qty);
 });
 
 el.inputItem.addEventListener('input', renderSuggestions);
@@ -814,10 +831,13 @@ el.suggestions.addEventListener('click', (event) => {
   const chip = event.target.closest('.suggestion');
   if (!chip) return;
 
+  // A quantity typed before reaching for a suggestion still applies to it.
+  const qty = el.inputQty.value;
   el.inputItem.value = '';
+  el.inputQty.value = '';
   el.inputItem.focus();
   clearSuggestions();
-  addItem(chip.textContent);
+  addItem(chip.textContent, qty);
 });
 
 // One delegated listener instead of two per row: rows are now long-lived, and

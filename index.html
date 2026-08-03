@@ -109,6 +109,11 @@
        data-i18n-aria-label="list.suggestions" aria-label="Suggestions"></div>
 
   <form id="form-add" class="composer">
+    <!-- Blank means one, which is why the placeholder shows 1 rather than the
+         field being pre-filled: most items need no decision here at all. -->
+    <input id="input-qty" class="input qty-input" type="number" inputmode="numeric"
+           min="2" max="999" step="1" placeholder="1"
+           data-i18n-aria-label="list.qtyLabel" aria-label="Quantity">
     <input id="input-item" class="input" type="text" autocomplete="off"
            enterkeyhint="done" maxlength="80" placeholder="Add an item…"
            data-i18n-placeholder="list.addPlaceholder"

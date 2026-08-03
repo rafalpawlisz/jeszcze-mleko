@@ -308,11 +308,25 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .item.just-toggled .checkbox { animation: pop calc(var(--speed) * 1.4) ease-out; }
 .item.done .checkbox { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 .item-name {
+  min-width: 0; /* without this a flex child refuses to shrink and ellipsis never kicks in */
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color var(--speed), opacity var(--speed);
   white-space: nowrap;
 }
+
+/* Only rendered above one — "mleko 1, chleb 1, masło 1" would be noise, not
+   information. */
+.item-qty {
+  background: var(--surface-2);
+  border-radius: 999px;
+  color: var(--muted);
+  flex: none;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  padding: .1rem .45rem;
+}
+.item-qty[hidden] { display: none; }
 .item.done .item-name { color: var(--muted); opacity: .7; text-decoration: line-through; }
 
 .item-delete {
@@ -378,6 +392,20 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   padding-right: calc(1rem + env(safe-area-inset-right, 0px));
 }
 .screen-list:has(.composer:focus-within) .composer { padding-bottom: .75rem; }
+
+.qty-input {
+  flex: none;
+  padding-left: .3rem;
+  padding-right: .3rem;
+  text-align: center;
+  width: 3.25rem;
+  /* Spinners would eat most of a field this narrow, and a phone shows a numeric
+     keypad anyway. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { appearance: none; margin: 0; }
 
 /* ---------- motion ---------- */
 

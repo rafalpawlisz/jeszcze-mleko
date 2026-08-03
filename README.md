@@ -161,9 +161,20 @@ one, which then has to be registered again.
 
 ```
 lists/{listId}              code, members: { uid: true }, createdAt, name?
-lists/{listId}/items/{id}   name, dept, done, createdAt
+lists/{listId}/items/{id}   name, dept, done, createdAt, qty?
 codes/{CODE}                listId
 ```
+
+`qty` is written only when it is 2 or more. One is the default and is left out
+entirely, so an ordinary item is exactly the document it was before quantities
+existed, and nothing had to be migrated. The row shows a badge only above one —
+"mleko 1, chleb 1, masło 1" would be noise rather than information.
+
+The quantity field sits next to the name in the composer, empty by default.
+Capturing it at add time is the point: that is when you know it. The two obvious
+alternatives are worse — asking after each add breaks the burst-add loop the app
+is built around, and putting it behind a tap on the row collides with the tap that
+checks an item off, which is the most-used gesture in the shop.
 
 `name` on a list is **optional** and the app never writes it. Without it the
 heading at the top is translated separately on every device. The field stays in
