@@ -24,7 +24,7 @@ const STRINGS = {
     'welcome.join': 'Join',
     'welcome.codeLength': 'The code is {n} characters long.',
     'welcome.noSuchList': 'No list with that code.',
-    'welcome.lostAccess': 'Access to the list was lost. Join again with the code.',
+    'welcome.lostAccess': 'That list is no longer available. Create a new one, or join with a code.',
 
     'list.clearDone': 'Clear bought',
     'list.settings': 'Settings',
@@ -104,7 +104,7 @@ const STRINGS = {
     'welcome.join': 'Dołącz',
     'welcome.codeLength': 'Kod ma {n} znaków.',
     'welcome.noSuchList': 'Nie ma listy o takim kodzie.',
-    'welcome.lostAccess': 'Utracono dostęp do listy. Dołącz ponownie kodem.',
+    'welcome.lostAccess': 'Ta lista jest już niedostępna. Utwórz nową albo dołącz kodem.',
 
     'list.clearDone': 'Wyczyść kupione',
     'list.settings': 'Ustawienia',
