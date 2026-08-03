@@ -177,6 +177,18 @@ whether it means slices, grams or decagrams — and nothing here ever computes w
 the value, so structure buys nothing. A unit list would also need localising, and
 Polish "dag" has no everyday English equivalent.
 
+Typing the amount into the name works too: "szynka 50 dag" is split into the item
+"szynka" carrying "50 dag". A **unit is required** for that to happen, and that is
+the entire safety margin — a bare number is genuinely ambiguous ("2 mleka" — two
+cartons or two litres?) so it is left alone, and "mleko 3,2%" is untouched because
+% is not a unit. Nothing is invented by the split: the amount only moves from the
+name into its own field. An amount typed into the field wins over anything found
+in the name.
+
+It also keeps suggestions clean. Without the split, "szynka 50 dag" and "szynka
+30 dag" would accumulate as two unrelated history entries rather than one
+"szynka". See [`amount.js`](amount.js).
+
 The field sits next to the name in the composer, empty by default. Capturing it at
 add time is the point: that is when you know it. The two obvious alternatives are
 worse — asking after each add breaks the burst-add loop the app is built around,
@@ -343,6 +355,7 @@ project in Google Cloud.
 | [`departments.js`](departments.js) | bilingual department dictionary and name matching |
 | [`i18n.js`](i18n.js) | interface strings, language detection, plurals |
 | [`history.js`](history.js) | per-device suggestion history behind three functions |
+| [`amount.js`](amount.js) | splits a typed amount off the item name |
 | [`app.css`](app.css) | styles, mobile-first, automatic dark mode |
 | [`sw.js`](sw.js) | service worker — offline support and installability |
 | [`firestore.rules`](firestore.rules) | rules to paste into the Firebase console |

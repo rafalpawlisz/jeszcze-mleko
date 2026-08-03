@@ -28,6 +28,7 @@ import {
 import { firebaseConfig, recaptchaSiteKey } from './firebase-config.js';
 import { DEPARTMENTS, departmentInfo, guessDepartment } from './departments.js';
 import { record, seed, suggest } from './history.js';
+import { splitAmount } from './amount.js';
 import {
   t,
   getLocale,
@@ -636,11 +637,17 @@ function amountFrom(raw) {
 }
 
 async function addItem(rawName, rawAmount) {
-  const name = rawName.trim().replace(/\s+/g, ' ');
+  // People type "szynka 50 dag" in one go rather than reaching for the amount
+  // field, so an amount with a unit is lifted out of the name. Only when the
+  // field was left empty — a value typed there is an explicit choice and wins.
+  const typed = amountFrom(rawAmount).amount;
+  const split = typed ? { name: rawName, amount: '' } : splitAmount(rawName);
+
+  const name = split.name.trim().replace(/\s+/g, ' ');
   if (!name || !state.listId) return;
 
-  // Recorded before the write, not after: offline the addDoc promise stays
-  // pending until the network returns, and suggestions should work offline too.
+  // The split name is what goes into history, so "szynka 50 dag" and
+  // "szynka 30 dag" converge on one suggestion instead of piling up as two.
   record(name);
 
   // The department is resolved once, when the item is added, and stored on the
@@ -652,7 +659,7 @@ async function addItem(rawName, rawAmount) {
       dept: guessDepartment(name),
       done: false,
       createdAt: serverTimestamp(),
-      ...amountFrom(rawAmount),
+      ...amountFrom(typed || split.amount),
     });
   } catch (error) {
     console.error('Could not add the item', error);
