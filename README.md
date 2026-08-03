@@ -302,6 +302,15 @@ which is why it sits in settings (⚙️) and is worth writing down somewhere.
 **Whoever knows the code has access.** Codes do not expire. If one leaks, the only
 way out is creating a new list — there is deliberately no member management here.
 
+**Leaving tidies up.** Leaving a list always removes your own key from `members`,
+so an abandoned list does not keep listing people who are gone. If you are the
+last member, the dialog additionally offers to delete the list, its items and its
+code outright — nothing left behind. That offer only appears for the last member:
+otherwise "tidying up after myself" would wipe the list somebody else is shopping
+from. Deletion order is items, then code, then the list document, because the rule
+guarding the code checks membership on a list that has to still exist at that
+point.
+
 **App Check is not a rate limiter.** It stops automated abuse, but it will not stop
 someone who knows the code from adding a thousand items by hand. For a private
 household list that is irrelevant. For peace of mind, set a **budget alert** on the

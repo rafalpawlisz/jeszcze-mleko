@@ -45,12 +45,19 @@ service cloud.firestore {
           && request.resource.data.members.keys().size() <= 10;
       }
 
+      // The last member may take the list down with them. With anybody else
+      // still on it, deletion stays impossible — leaving only removes your own
+      // key from members, which the update rule above already permits.
+      function lastMember() {
+        return isMember() && resource.data.members.keys().hasOnly([request.auth.uid]);
+      }
+
       allow read: if isMember();
       allow create: if signedIn()
         && validList()
         && request.resource.data.members.keys().hasOnly([request.auth.uid]);
       allow update: if (isMember() && validList()) || joiningSelf();
-      allow delete: if false;
+      allow delete: if lastMember();
 
       match /items/{itemId} {
 
@@ -92,7 +99,16 @@ service cloud.firestore {
 
       // Once a code points at a list it never changes meaning — otherwise
       // someone could redirect another person's invite code to their own list.
-      allow update, delete: if false;
+      allow update: if false;
+
+      // Deletable by the list's last member, as part of cleaning up on the way
+      // out. The second branch covers a code left pointing at a list that is
+      // already gone: a dangling pointer nobody can use and anybody may sweep up.
+      allow delete: if signedIn() && (
+        !exists(/databases/$(database)/documents/lists/$(resource.data.listId))
+        || get(/databases/$(database)/documents/lists/$(resource.data.listId))
+             .data.members.keys().hasOnly([request.auth.uid])
+      );
     }
   }
 }

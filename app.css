@@ -471,6 +471,16 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .dialog[open]::backdrop { animation: fade-in var(--speed) ease-out; }
 .dialog p { margin: 0; }
 
+.field-check {
+  align-items: flex-start;
+  display: flex;
+  font-size: .9rem;
+  gap: .6rem;
+  margin-top: 1rem;
+}
+.field-check[hidden] { display: none; }
+.field-check input { flex: none; height: 20px; margin: 0; width: 20px; }
+
 /* ---------- toast ---------- */
 
 .toast {

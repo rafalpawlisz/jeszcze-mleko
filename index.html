@@ -152,9 +152,14 @@
 <dialog id="dialog" class="dialog">
   <h2 id="dialog-title"></h2>
   <p id="dialog-message" class="muted"></p>
+  <!-- Optional extra decision, shown only when the dialog asks for one. -->
+  <label id="dialog-extra" class="field-check" hidden>
+    <input id="dialog-checkbox" type="checkbox">
+    <span id="dialog-checkbox-label"></span>
+  </label>
   <div class="sheet-actions">
-    <button id="dialog-cancel" class="btn" value="cancel" data-i18n="dialog.cancel">Cancel</button>
-    <button id="dialog-confirm" class="btn btn-danger" value="confirm" data-i18n="dialog.confirm">Confirm</button>
+    <button id="dialog-cancel" class="btn" type="button" data-i18n="dialog.cancel">Cancel</button>
+    <button id="dialog-confirm" class="btn btn-danger" type="button" data-i18n="dialog.confirm">Confirm</button>
   </div>
 </dialog>
 

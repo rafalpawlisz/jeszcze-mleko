@@ -65,6 +65,8 @@ const STRINGS = {
     'settings.leave': 'Leave list',
     'settings.leaveTitle': 'Leave this list?',
     'settings.leaveConfirm': 'It will be removed from this device only. You can come back with the invite code.',
+    'settings.leaveDelete': 'You are the only member — also delete the list, its items and its code.',
+    'settings.deleted': 'List deleted.',
     'settings.close': 'Close',
 
     'error.permissionDenied': 'Permission denied. Reload the page and try again.',
@@ -145,6 +147,8 @@ const STRINGS = {
     'settings.leave': 'Opuść listę',
     'settings.leaveTitle': 'Opuścić listę?',
     'settings.leaveConfirm': 'Zniknie tylko z tego urządzenia. Wrócisz na nią kodem zaproszenia.',
+    'settings.leaveDelete': 'Jesteś jedynym członkiem — usuń też listę, jej produkty i kod.',
+    'settings.deleted': 'Lista usunięta.',
     'settings.close': 'Zamknij',
 
     'error.permissionDenied': 'Brak uprawnień. Odśwież stronę i spróbuj ponownie.',

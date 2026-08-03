@@ -19,6 +19,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   onSnapshot,
   serverTimestamp,
   writeBatch,
@@ -111,6 +112,9 @@ const el = {
   btnLeave: $('btn-leave'),
   btnCloseSettings: $('btn-close-settings'),
   selectLanguage: $('select-language'),
+  dialogExtra: $('dialog-extra'),
+  dialogCheckbox: $('dialog-checkbox'),
+  dialogCheckboxLabel: $('dialog-checkbox-label'),
   toast: $('toast'),
   toastMessage: $('toast-message'),
   toastAction: $('toast-action'),
@@ -162,15 +166,32 @@ function toast(message, action = null) {
 // Promise-based replacement for confirm(). The native dialog on iOS shows the
 // bare domain name and cannot be styled; <dialog> gives us Escape handling and
 // focus trapping for free.
-function confirmDialog({ title, message, confirmLabel }) {
+// Set while a dialog is open; every way out of the dialog goes through it.
+let settleDialog = null;
+
+// Resolves to { confirmed, checked }. The optional checkbox lets one dialog carry
+// a secondary decision instead of chaining two prompts.
+//
+// Deliberately not driven by the dialog's own 'close' event: it was measured not
+// to fire in every engine even though close() had plainly run, which left the
+// promise pending forever. The buttons and the Escape key resolve this directly.
+function confirmDialog({ title, message, confirmLabel, checkbox = null }) {
   el.dialogTitle.textContent = title;
   el.dialogMessage.textContent = message;
   el.dialogConfirm.textContent = confirmLabel ?? t('dialog.confirm');
 
+  el.dialogExtra.hidden = !checkbox;
+  el.dialogCheckbox.checked = false; // never carry a choice over from last time
+  if (checkbox) el.dialogCheckboxLabel.textContent = checkbox.label;
+
   return new Promise((resolve) => {
-    el.dialog.addEventListener('close', () => {
-      resolve(el.dialog.returnValue === 'confirm');
-    }, { once: true });
+    settleDialog = (confirmed) => {
+      settleDialog = null;
+      const checked = el.dialogCheckbox.checked;
+      if (el.dialog.open) el.dialog.close();
+      resolve({ confirmed, checked });
+    };
+
     el.dialog.showModal();
     el.dialogCancel.focus(); // safer default than the destructive button
   });
@@ -289,13 +310,54 @@ async function joinList(rawCode) {
 }
 
 async function leaveList() {
-  const confirmed = await confirmDialog({
+  // Offering to delete everything is only safe for the last member — otherwise
+  // "tidying up after myself" would wipe the list somebody else is shopping from.
+  const isLastMember = Object.keys(state.list?.members ?? {}).length <= 1;
+
+  const { confirmed, checked } = await confirmDialog({
     title: t('settings.leaveTitle'),
     message: t('settings.leaveConfirm'),
     confirmLabel: t('settings.leave'),
+    checkbox: isLastMember ? { label: t('settings.leaveDelete') } : null,
   });
   if (!confirmed) return;
 
+  // Captured before detaching, which clears them.
+  const { listId, uid } = { listId: state.listId, uid: state.uid };
+  const code = state.list?.code;
+  const items = state.items;
+
+  // Detach first. The moment we stop being a member the list listener would fail
+  // with permission-denied and announce lost access, which is not what happened.
+  detachList();
+
+  try {
+    if (isLastMember && checked) {
+      await deleteList(listId, code, items);
+      toast(t('settings.deleted'));
+    } else {
+      await updateDoc(doc(db, 'lists', listId), { [`members.${uid}`]: deleteField() });
+    }
+  } catch (error) {
+    console.error('Leaving the list failed', error);
+    toast(describeError(error));
+  }
+
+  localStorage.removeItem(STORAGE_KEY);
+  closeSettings();
+  showScreen('welcome');
+}
+
+// Order matters. The rule guarding the code checks membership on the list, so the
+// list document has to still exist at that point — items, then code, then list.
+async function deleteList(listId, code, items) {
+  const itemsRef = collection(db, 'lists', listId, 'items');
+  await inBatches(items, (batch, item) => batch.delete(doc(itemsRef, item.id)));
+  if (code) await deleteDoc(doc(db, 'codes', code));
+  await deleteDoc(doc(db, 'lists', listId));
+}
+
+function detachList() {
   state.unsubscribeList?.();
   state.unsubscribeItems?.();
   state.unsubscribeList = null;
@@ -304,9 +366,11 @@ async function leaveList() {
   state.list = null;
   state.items = [];
 
-  localStorage.removeItem(STORAGE_KEY);
-  closeSettings();
-  showScreen('welcome');
+  // Reused rows belong to the list we just left; keeping them would leak into
+  // whichever list is opened next.
+  itemNodes.clear();
+  deptNodes.clear();
+  el.items.replaceChildren(el.emptyState);
 }
 
 // ============================================================================
@@ -782,12 +846,18 @@ el.settings.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && !el.settings.hidden) closeSettings();
+  if (event.key !== 'Escape') return;
+
+  // The dialog sits on top of the settings sheet, so it gets the key first.
+  if (el.dialog.open) settleDialog?.(false);
+  else if (!el.settings.hidden) closeSettings();
 });
 
-// <dialog> closes itself on Escape; these just record which button was used.
-el.dialogConfirm.addEventListener('click', () => el.dialog.close('confirm'));
-el.dialogCancel.addEventListener('click', () => el.dialog.close('cancel'));
+el.dialogConfirm.addEventListener('click', () => settleDialog?.(true));
+el.dialogCancel.addEventListener('click', () => settleDialog?.(false));
+// Escape on a modal dialog dismisses it natively before our keydown handler can
+// see it in some engines; 'cancel' is the other place that has to settle it.
+el.dialog.addEventListener('cancel', () => settleDialog?.(false));
 
 el.btnDismissHint.addEventListener('click', () => {
   el.installHint.hidden = true;
