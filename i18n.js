@@ -26,7 +26,6 @@ const STRINGS = {
     'welcome.noSuchList': 'No list with that code.',
     'welcome.lostAccess': 'Access to the list was lost. Join again with the code.',
 
-    'list.defaultName': 'Shopping list',
     'list.clearDone': 'Clear bought',
     'list.settings': 'Settings',
     'list.offline': 'No connection — changes will sync later.',
@@ -104,7 +103,6 @@ const STRINGS = {
     'welcome.noSuchList': 'Nie ma listy o takim kodzie.',
     'welcome.lostAccess': 'Utracono dostęp do listy. Dołącz ponownie kodem.',
 
-    'list.defaultName': 'Lista zakupów',
     'list.clearDone': 'Wyczyść kupione',
     'list.settings': 'Ustawienia',
     'list.offline': 'Brak sieci — zmiany zsynchronizują się później.',

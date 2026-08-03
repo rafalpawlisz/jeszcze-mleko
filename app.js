@@ -123,6 +123,10 @@ const el = {
   btnDismissHint: $('btn-dismiss-hint'),
 };
 
+// The app name lives in the markup, not here, and is never translated — it is a
+// proper noun. Captured before anything can overwrite the heading.
+const APP_NAME = el.listTitle.textContent;
+
 // The markup ships English defaults; swap them for the detected language before
 // anything is shown.
 applyTranslations();
@@ -327,7 +331,7 @@ function openList(listId) {
         return;
       }
       state.list = snap.data();
-      el.listTitle.textContent = state.list.name || t('list.defaultName');
+      el.listTitle.textContent = state.list.name || APP_NAME;
       el.settingsCode.textContent = state.list.code || '------';
     },
     (error) => {
@@ -681,7 +685,7 @@ function clearSuggestions() {
 function changeLanguage(preference) {
   setLocalePreference(preference);
   applyTranslations();
-  if (state.list) el.listTitle.textContent = state.list.name || t('list.defaultName');
+  if (state.list) el.listTitle.textContent = state.list.name || APP_NAME;
   renderItems();
 }
 
