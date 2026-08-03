@@ -67,21 +67,22 @@ service cloud.firestore {
                  .data.members[request.auth.uid] == true;
         }
 
-        // qty is optional and only ever present when it is 2 or more: one is the
-        // default and is left out entirely, so an ordinary item looks exactly
-        // as it did before quantities existed.
+        // amount is free text — "6", "50 dag", "1,5 l", "pół kilo". A number on
+        // its own cannot say whether 50 means slices, grams or decagrams, and
+        // nothing here ever computes with the value: it is a note for whoever is
+        // holding the basket. It is absent whenever the answer is simply one.
         function validItem() {
-          return request.resource.data.keys().hasOnly(['name', 'dept', 'done', 'createdAt', 'qty'])
+          return request.resource.data.keys().hasOnly(['name', 'dept', 'done', 'createdAt', 'amount'])
             && request.resource.data.name is string
             && request.resource.data.name.size() > 0
             && request.resource.data.name.size() <= 80
             && request.resource.data.dept is string
             && request.resource.data.dept.size() <= 30
             && request.resource.data.done is bool
-            && (!('qty' in request.resource.data) || (
-                 request.resource.data.qty is int
-                 && request.resource.data.qty > 1
-                 && request.resource.data.qty <= 999));
+            && (!('amount' in request.resource.data) || (
+                 request.resource.data.amount is string
+                 && request.resource.data.amount.size() > 0
+                 && request.resource.data.amount.size() <= 12));
         }
 
         allow read, delete: if memberOfList();

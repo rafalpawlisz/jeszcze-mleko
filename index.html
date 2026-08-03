@@ -109,11 +109,12 @@
        data-i18n-aria-label="list.suggestions" aria-label="Suggestions"></div>
 
   <form id="form-add" class="composer">
-    <!-- Blank means one, which is why the placeholder shows 1 rather than the
-         field being pre-filled: most items need no decision here at all. -->
-    <input id="input-qty" class="input qty-input" type="number" inputmode="numeric"
-           min="2" max="999" step="1" placeholder="1"
-           data-i18n-aria-label="list.qtyLabel" aria-label="Quantity">
+    <!-- Free text, not a number: "50" alone cannot say whether it means slices,
+         grams or decagrams. Blank means one, hence the placeholder rather than a
+         pre-filled value — most items need no decision here at all. -->
+    <input id="input-amount" class="input amount-input" type="text" autocomplete="off"
+           maxlength="12" placeholder="1"
+           data-i18n-aria-label="list.amountLabel" aria-label="Amount">
     <input id="input-item" class="input" type="text" autocomplete="off"
            enterkeyhint="done" maxlength="80" placeholder="Add an item…"
            data-i18n-placeholder="list.addPlaceholder"

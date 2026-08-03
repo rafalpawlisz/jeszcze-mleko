@@ -315,9 +315,9 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   white-space: nowrap;
 }
 
-/* Only rendered above one — "mleko 1, chleb 1, masło 1" would be noise, not
-   information. */
-.item-qty {
+/* Only rendered when there is something to say — "mleko 1, chleb 1, masło 1"
+   would be noise, not information. */
+.item-amount {
   background: var(--surface-2);
   border-radius: 999px;
   color: var(--muted);
@@ -326,7 +326,7 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   font-variant-numeric: tabular-nums;
   padding: .1rem .45rem;
 }
-.item-qty[hidden] { display: none; }
+.item-amount[hidden] { display: none; }
 .item.done .item-name { color: var(--muted); opacity: .7; text-decoration: line-through; }
 
 .item-delete {
@@ -393,19 +393,14 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 }
 .screen-list:has(.composer:focus-within) .composer { padding-bottom: .75rem; }
 
-.qty-input {
+/* Wide enough for "50 dag" without crowding the name field on a 375px screen. */
+.amount-input {
   flex: none;
-  padding-left: .3rem;
-  padding-right: .3rem;
+  padding-left: .35rem;
+  padding-right: .35rem;
   text-align: center;
-  width: 3.25rem;
-  /* Spinners would eat most of a field this narrow, and a phone shows a numeric
-     keypad anyway. */
-  appearance: textfield;
-  -moz-appearance: textfield;
+  width: 4.75rem;
 }
-.qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button { appearance: none; margin: 0; }
 
 /* ---------- motion ---------- */
 

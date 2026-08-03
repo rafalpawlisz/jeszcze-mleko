@@ -161,20 +161,27 @@ one, which then has to be registered again.
 
 ```
 lists/{listId}              code, members: { uid: true }, createdAt, name?
-lists/{listId}/items/{id}   name, dept, done, createdAt, qty?
+lists/{listId}/items/{id}   name, dept, done, createdAt, amount?
 codes/{CODE}                listId
 ```
 
-`qty` is written only when it is 2 or more. One is the default and is left out
-entirely, so an ordinary item is exactly the document it was before quantities
-existed, and nothing had to be migrated. The row shows a badge only above one —
-"mleko 1, chleb 1, masło 1" would be noise rather than information.
+`amount` is free text — "6", "50 dag", "1,5 l", "pół kilo" — and is written only
+when there is something to say. Blank or a plain "1" mean one and are left out
+entirely, so an ordinary item is exactly the document it was before amounts
+existed. The row shows a badge only when the field is set: "mleko 1, chleb 1,
+masło 1" would be noise rather than information. A bare number renders as "×6";
+anything carrying its own unit is shown as typed.
 
-The quantity field sits next to the name in the composer, empty by default.
-Capturing it at add time is the point: that is when you know it. The two obvious
-alternatives are worse — asking after each add breaks the burst-add loop the app
-is built around, and putting it behind a tap on the row collides with the tap that
-checks an item off, which is the most-used gesture in the shop.
+Free text rather than a number and a unit picker, because a bare "50" cannot say
+whether it means slices, grams or decagrams — and nothing here ever computes with
+the value, so structure buys nothing. A unit list would also need localising, and
+Polish "dag" has no everyday English equivalent.
+
+The field sits next to the name in the composer, empty by default. Capturing it at
+add time is the point: that is when you know it. The two obvious alternatives are
+worse — asking after each add breaks the burst-add loop the app is built around,
+and putting it behind a tap on the row collides with the tap that checks an item
+off, which is the most-used gesture in the shop.
 
 `name` on a list is **optional** and the app never writes it. Without it the
 heading at the top is translated separately on every device. The field stays in

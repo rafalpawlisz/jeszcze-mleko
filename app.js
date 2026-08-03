@@ -105,7 +105,7 @@ const el = {
   emptyState: $('empty-state'),
   formAdd: $('form-add'),
   inputItem: $('input-item'),
-  inputQty: $('input-qty'),
+  inputAmount: $('input-amount'),
   suggestions: $('suggestions'),
   settings: $('settings'),
   settingsCode: $('settings-code'),
@@ -579,9 +579,9 @@ function itemRow(item) {
     box.className = 'checkbox';
     const name = document.createElement('span');
     name.className = 'item-name';
-    const qty = document.createElement('span');
-    qty.className = 'item-qty';
-    toggle.append(box, name, qty);
+    const amount = document.createElement('span');
+    amount.className = 'item-amount';
+    toggle.append(box, name, amount);
 
     const remove = document.createElement('button');
     remove.className = 'item-delete';
@@ -594,7 +594,7 @@ function itemRow(item) {
   }
 
   const [toggle, remove] = node.children;
-  const [box, name, qty] = toggle.children;
+  const [box, name, amount] = toggle.children;
 
   if (!isNew && node.classList.contains('done') !== !!item.done) {
     // Re-adding a class the element already had does nothing, so the animation
@@ -609,8 +609,10 @@ function itemRow(item) {
   toggle.setAttribute('aria-pressed', String(!!item.done));
   box.textContent = item.done ? '✓' : '';
   name.textContent = item.name; // textContent, not innerHTML — the name is data
-  qty.hidden = !(item.qty > 1);
-  qty.textContent = item.qty > 1 ? `×${item.qty}` : '';
+  // A bare number reads better with a multiplication sign ("×6"); anything that
+  // carries its own unit is shown exactly as it was typed ("50 dag").
+  amount.hidden = !item.amount;
+  amount.textContent = /^\d+$/.test(item.amount ?? '') ? `×${item.amount}` : (item.amount ?? '');
   remove.setAttribute('aria-label', t('item.delete', { name: item.name }));
 
   return node;
@@ -624,15 +626,16 @@ function itemsCollection() {
   return collection(db, 'lists', state.listId, 'items');
 }
 
-// Blank, "1", or anything unparseable all mean one — and one is left out of the
-// document entirely, so an ordinary item is byte-for-byte what it was before
-// quantities existed and old items need no migration.
-function quantityFrom(raw) {
-  const qty = Number.parseInt(raw, 10);
-  return Number.isInteger(qty) && qty > 1 ? { qty: Math.min(qty, 999) } : {};
+// Free text rather than a number: "50" on its own cannot say whether it means
+// slices, grams or decagrams, and nothing here ever computes with the value.
+// Blank or a plain "1" mean one, and one is left out of the document entirely,
+// so an ordinary item is byte-for-byte what it was before amounts existed.
+function amountFrom(raw) {
+  const amount = String(raw ?? '').trim().replace(/\s+/g, ' ').slice(0, 12);
+  return amount && amount !== '1' ? { amount } : {};
 }
 
-async function addItem(rawName, rawQty) {
+async function addItem(rawName, rawAmount) {
   const name = rawName.trim().replace(/\s+/g, ' ');
   if (!name || !state.listId) return;
 
@@ -649,7 +652,7 @@ async function addItem(rawName, rawQty) {
       dept: guessDepartment(name),
       done: false,
       createdAt: serverTimestamp(),
-      ...quantityFrom(rawQty),
+      ...amountFrom(rawAmount),
     });
   } catch (error) {
     console.error('Could not add the item', error);
@@ -677,7 +680,7 @@ function backupOf(item) {
       dept: item.dept,
       done: !!item.done,
       createdAt: item.createdAt ?? serverTimestamp(),
-      ...quantityFrom(item.qty),
+      ...amountFrom(item.amount),
     },
   };
 }
@@ -815,12 +818,12 @@ el.inputCode.addEventListener('input', () => {
 el.formAdd.addEventListener('submit', (event) => {
   event.preventDefault();
   const value = el.inputItem.value;
-  const qty = el.inputQty.value;
+  const amount = el.inputAmount.value;
   el.inputItem.value = '';
-  el.inputQty.value = '';
+  el.inputAmount.value = '';
   el.inputItem.focus(); // keeps the keyboard up — easier to add items in a row
   clearSuggestions();
-  addItem(value, qty);
+  addItem(value, amount);
 });
 
 el.inputItem.addEventListener('input', renderSuggestions);
@@ -831,13 +834,13 @@ el.suggestions.addEventListener('click', (event) => {
   const chip = event.target.closest('.suggestion');
   if (!chip) return;
 
-  // A quantity typed before reaching for a suggestion still applies to it.
-  const qty = el.inputQty.value;
+  // An amount typed before reaching for a suggestion still applies to it.
+  const amount = el.inputAmount.value;
   el.inputItem.value = '';
-  el.inputQty.value = '';
+  el.inputAmount.value = '';
   el.inputItem.focus();
   clearSuggestions();
-  addItem(chip.textContent, qty);
+  addItem(chip.textContent, amount);
 });
 
 // One delegated listener instead of two per row: rows are now long-lived, and
