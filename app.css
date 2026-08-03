@@ -198,6 +198,19 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .topbar h1 { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-actions { align-items: center; display: flex; gap: .25rem; }
 
+.topbar-logo { border-radius: 6px; flex: none; height: 22px; width: 22px; }
+
+/* Icon and count only. The full wording is in aria-label, since at 375px it
+   would leave the app name nothing to occupy. */
+.btn-count {
+  align-items: center;
+  display: inline-flex;
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+  gap: .3rem;
+  padding: .45rem .55rem;
+}
+
 .banner {
   background: var(--surface-2);
   color: var(--muted);

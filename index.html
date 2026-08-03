@@ -67,11 +67,18 @@
 <!-- ===================== Screen 3: list ===================== -->
 <section id="screen-list" class="screen screen-list" hidden>
   <header class="topbar">
+    <!-- The same mark as the Home Screen icon, so the header matches what the
+         user tapped. alt is empty on purpose: the name follows immediately, and
+         a screen reader should not announce it twice. -->
+    <img class="topbar-logo" src="./icons/apple-touch-icon.png" alt=""
+         width="22" height="22">
     <!-- The app name, not a translated string: it is a proper noun. Also the
          fallback JS reads when a list has no name of its own. -->
     <h1 id="list-title">Jeszcze Mleko</h1>
     <div class="topbar-actions">
-      <button id="btn-clear-done" class="btn btn-ghost" hidden>Clear bought</button>
+      <!-- Icon plus a count: the full wording would leave the title no room at
+           375px. The readable label lives in aria-label and title. -->
+      <button id="btn-clear-done" class="btn btn-ghost btn-count" hidden></button>
       <button id="btn-settings" class="btn btn-icon"
               data-i18n-aria-label="list.settings" data-i18n-title="list.settings"
               aria-label="Settings" title="Settings">⚙️</button>

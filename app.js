@@ -393,7 +393,12 @@ function renderItems() {
 
   const doneCount = items.filter((item) => item.done).length;
   el.btnClearDone.hidden = doneCount === 0;
-  el.btnClearDone.textContent = t('list.clearDoneCount', { count: doneCount });
+  // Visually just a broom and a number; the wording that explains it goes to
+  // assistive tech and to the desktop tooltip.
+  const clearLabel = t('list.clearDoneCount', { count: doneCount });
+  el.btnClearDone.textContent = `🧹 ${doneCount}`;
+  el.btnClearDone.setAttribute('aria-label', clearLabel);
+  el.btnClearDone.title = clearLabel;
 
   // Group by department, sort alphabetically, push bought items to the bottom
   // of their section.
