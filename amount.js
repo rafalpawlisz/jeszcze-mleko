@@ -9,7 +9,9 @@
 // It also keeps the suggestion history clean: without this, "szynka 50 dag" and
 // "szynka 30 dag" would pile up as two unrelated entries instead of one "szynka".
 
-const MAX_LENGTH = 12; // must match the rules' cap on the amount field
+// The one place this cap is written down. firestore.rules enforces the same
+// number independently — it has to, since it cannot import anything.
+export const AMOUNT_MAX = 12;
 
 // Longer alternatives first, or "dag" would match as "g" and "ml" as "l".
 const UNIT = '(?:dkg|dag|kg|g|ml|l|szt\\.?|sztuk|opak\\.?|pcs|pack|oz|lb)';
@@ -56,7 +58,7 @@ export function splitAmount(text) {
 
   // Nothing left to buy, or an amount too long for the field: leave the text
   // exactly as it was typed rather than mangling it.
-  if (!name || amount.length > MAX_LENGTH) return nothing;
+  if (!name || amount.length > AMOUNT_MAX) return nothing;
 
   return { name, amount };
 }

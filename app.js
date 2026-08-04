@@ -28,7 +28,7 @@ import {
 import { firebaseConfig, recaptchaSiteKey } from './firebase-config.js';
 import { DEPARTMENTS, departmentInfo, guessDepartment } from './departments.js';
 import { record, seed, suggest } from './history.js';
-import { splitAmount } from './amount.js';
+import { splitAmount, AMOUNT_MAX } from './amount.js';
 import {
   t,
   getLocale,
@@ -632,7 +632,9 @@ function itemsCollection() {
 // Blank or a plain "1" mean one, and one is left out of the document entirely,
 // so an ordinary item is byte-for-byte what it was before amounts existed.
 function amountFrom(raw) {
-  const amount = String(raw ?? '').trim().replace(/\s+/g, ' ').slice(0, 12);
+  // trim after slicing too: cutting at the cap can land on a space, and a value
+  // ending in one would be stored and rendered with it.
+  const amount = String(raw ?? '').trim().replace(/\s+/g, ' ').slice(0, AMOUNT_MAX).trim();
   return amount && amount !== '1' ? { amount } : {};
 }
 
@@ -694,14 +696,18 @@ function backupOf(item) {
 
 async function removeItem(item) {
   const backup = backupOf(item);
+  // Captured now, not read again when Undo is tapped: the six-second window is
+  // long enough to leave this list, and restoring into whichever list happens to
+  // be open then would put the item somewhere it never was.
+  const itemsRef = itemsCollection();
 
   try {
-    await deleteDoc(doc(itemsCollection(), item.id));
+    await deleteDoc(doc(itemsRef, item.id));
     // The delete button sits right next to the row and is easy to hit by
     // accident, so it gets the same safety net as clearing bought items.
     toast(t('item.removed', { name: item.name }), {
       label: t('action.undo'),
-      onClick: () => restoreItems([backup]),
+      onClick: () => restoreItems(itemsRef, [backup]),
     });
   } catch (error) {
     console.error('Could not delete the item', error);
@@ -717,12 +723,13 @@ async function clearDone() {
   // No confirmation dialog: the action happens straight away and is undoable for
   // a few seconds. A prompt people click through blindly protects nobody.
   const backup = done.map(backupOf);
+  const itemsRef = itemsCollection(); // see removeItem: the target must not drift
 
   try {
-    await inBatches(done, (batch, item) => batch.delete(doc(itemsCollection(), item.id)));
+    await inBatches(done, (batch, item) => batch.delete(doc(itemsRef, item.id)));
     toast(t('clear.done', { count: done.length }), {
       label: t('action.undo'),
-      onClick: () => restoreItems(backup),
+      onClick: () => restoreItems(itemsRef, backup),
     });
   } catch (error) {
     console.error('Clearing the list failed', error);
@@ -730,12 +737,12 @@ async function clearDone() {
   }
 }
 
-async function restoreItems(backup) {
+async function restoreItems(itemsRef, backup) {
   try {
     // Restored under the original ids, so anyone else's screen sees the rows
     // reappear exactly where they were.
     await inBatches(backup, (batch, entry) =>
-      batch.set(doc(itemsCollection(), entry.id), entry.data));
+      batch.set(doc(itemsRef, entry.id), entry.data));
     toast(t('action.undone'));
   } catch (error) {
     console.error('Restoring items failed', error);

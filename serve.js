@@ -5,10 +5,10 @@
 
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { extname, join, normalize } from 'node:path';
+import { extname, resolve, sep } from 'node:path';
 
 const PORT = Number(process.argv[2]) || 8000;
-const ROOT = import.meta.dirname;
+const ROOT = resolve(import.meta.dirname);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -22,11 +22,26 @@ const MIME = {
 
 createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const requested = url.pathname === '/' ? '/index.html' : decodeURIComponent(url.pathname);
+  const requested = url.pathname === '/' ? '/index.html' : url.pathname;
 
-  // normalize + prefix check: without it "../.." would escape the root.
-  const filePath = normalize(join(ROOT, requested));
-  if (!filePath.startsWith(ROOT)) {
+  // Two traps here, both of which this used to walk straight into.
+  //
+  // new URL() collapses "../" for us, but it does NOT decode "%2e%2e%2f" — so
+  // decoding before resolving reintroduced an escape that normalisation had
+  // already dealt with. Decode first, then resolve, and let resolve() flatten
+  // whatever the decoding brought back.
+  //
+  // And the containment check needs the separator: plain startsWith(ROOT) also
+  // accepts a sibling directory whose name merely begins with ROOT's.
+  let filePath;
+  try {
+    filePath = resolve(ROOT, `.${decodeURIComponent(requested)}`);
+  } catch {
+    res.writeHead(400).end('Bad request'); // malformed percent-encoding
+    return;
+  }
+
+  if (filePath !== ROOT && !filePath.startsWith(ROOT + sep)) {
     res.writeHead(403).end('Forbidden');
     return;
   }
