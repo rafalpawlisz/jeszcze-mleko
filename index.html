@@ -159,11 +159,14 @@
     </label>
 
     <!-- Goes to a create-only collection: no uid, no list id, nothing that ties
-         a message to a person or a household. Hence the note under the field. -->
+         a message to a person or a household. Hence the note under the field.
+         Nothing technical is attached automatically, so the placeholder asks for
+         the list code instead — the box above it is one tap from the clipboard,
+         and whoever writes decides whether their list can be looked at. -->
     <label class="field field-stacked">
       <span class="muted" data-i18n="settings.feedback">Feedback</span>
       <textarea id="input-feedback" class="input" rows="3" maxlength="1000"
-                placeholder="What is missing, what is wrong?"
+                placeholder="What is missing, or what went wrong? For a bug, the code above helps."
                 data-i18n-placeholder="settings.feedbackPlaceholder"
                 aria-describedby="feedback-note"></textarea>
     </label>

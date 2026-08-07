@@ -161,6 +161,13 @@ that writes to `feedback` — create-only, so nobody can read, edit or delete
 anybody else's, and no uid or list id is attached. Nothing notifies you: read it
 in the Firebase console.
 
+Nothing technical is attached, which means a bug report arrives without a list to
+look at. The placeholder asks for the invite code instead — the code box sits
+right above the field — so whoever writes decides whether their list can be
+examined. Attaching it automatically was considered and rejected: the owner can
+read every list anyway, so it would have bought no new access, only a permanent
+link between a message and a household.
+
 **Uncategorised names are collected** into `unmatched`, so the dictionary can be
 improved from real usage rather than guesswork. Only the name and a count — no
 uid, no list id — and the rules make it write-only, so the app can never read back
