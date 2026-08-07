@@ -164,10 +164,12 @@
       <span class="muted" data-i18n="settings.feedback">Feedback</span>
       <textarea id="input-feedback" class="input" rows="3" maxlength="1000"
                 placeholder="What is missing, what is wrong?"
-                data-i18n-placeholder="settings.feedbackPlaceholder"></textarea>
+                data-i18n-placeholder="settings.feedbackPlaceholder"
+                aria-describedby="feedback-note"></textarea>
     </label>
     <div class="feedback-actions">
-      <span class="muted feedback-note" data-i18n="settings.feedbackNote">Sent anonymously.</span>
+      <span id="feedback-note" class="muted feedback-note"
+            data-i18n="settings.feedbackNote">Sent anonymously.</span>
       <button id="btn-send-feedback" class="btn" data-i18n="settings.feedbackSend">Send</button>
     </div>
 

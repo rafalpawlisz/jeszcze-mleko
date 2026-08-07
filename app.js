@@ -78,7 +78,8 @@ const db = initializeFirestore(app, {
 // ============================================================================
 
 const STORAGE_KEY = 'jeszcze-mleko:listId';
-const NAME_MAX = 60; // mirrored in firestore.rules and the field's maxlength
+const NAME_MAX = 60;      // both mirrored in firestore.rules and in the field's
+const FEEDBACK_MAX = 1000; // maxlength, neither of which can import anything
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L — nothing to misread
 const CODE_LENGTH = 6;
 
@@ -919,7 +920,9 @@ function clearSuggestions() {
 // actually looking at; nothing else is attached, which is what the note under
 // the field promises.
 async function sendFeedback() {
-  const message = el.inputFeedback.value.trim().slice(0, 1000);
+  // Trimmed again after slicing, for the same reason as the name and the amount:
+  // a cut landing on a space would otherwise be sent along with it.
+  const message = el.inputFeedback.value.trim().slice(0, FEEDBACK_MAX).trim();
   if (!message) return;
 
   el.btnSendFeedback.disabled = true;
