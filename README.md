@@ -118,6 +118,13 @@ and English stems sit together, so one shared list works whichever language peop
 type in. The department is written onto the item as it is added, so changing the
 dictionary never reshuffles a list mid-shop.
 
+**One row per product.** Typing something already on the list does not add a
+second row — the existing one is highlighted and scrolled to. If it had been
+checked off, adding it again means it is needed once more, so it comes back to
+the list. An amount given at that point replaces the old one. Two people adding
+the same thing at the same moment can still produce two rows: the check is local
+to whoever is typing.
+
 **Amounts.** Free text, not a number: "50" alone cannot say whether it means
 slices, grams or decagrams. Blank or "1" store nothing at all.
 [`amount.js`](amount.js) lifts an amount out of the name when it carries a unit —

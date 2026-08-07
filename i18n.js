@@ -40,6 +40,8 @@ const STRINGS = {
 
     'item.delete': 'Delete {name}',
     'item.removed': 'Removed {name}.',
+    'item.already': '{name} is already on the list.',
+    'item.backOnList': '{name} is back on the list.',
 
     'clear.done': {
       one: 'Removed 1 item.',
@@ -123,6 +125,8 @@ const STRINGS = {
 
     'item.delete': 'Usuń {name}',
     'item.removed': 'Usunięto {name}.',
+    'item.already': '{name} jest już na liście.',
+    'item.backOnList': '{name} wraca na listę.',
 
     'clear.done': {
       one: 'Usunięto 1 produkt.',

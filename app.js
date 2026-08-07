@@ -700,6 +700,15 @@ async function addItem(rawName, rawAmount) {
   // "szynka 30 dag" converge on one suggestion instead of piling up as two.
   record(name);
 
+  // One row per product. Suggestions already refuse to offer something that is
+  // on the list; adding it by hand should not quietly produce a second row
+  // either — you would check one off and the other would stay.
+  const existing = state.items.find((item) => normalize(item.name) === normalize(name));
+  if (existing) {
+    reuseExisting(existing, typed || split.amount);
+    return;
+  }
+
   // The department is resolved once, when the item is added, and stored on the
   // document. If the dictionary changes later, nobody's list gets reshuffled
   // in the middle of a shopping trip.
@@ -718,6 +727,40 @@ async function addItem(rawName, rawAmount) {
     console.error('Could not add the item', error);
     toast(describeError(error));
   }
+}
+
+// Typing something that is already there is a request for that item, not for a
+// second row. If it was already bought, adding it again plainly means it is
+// needed once more, so it comes back to the list. An amount given now replaces
+// the old one; a blank amount is no opinion and leaves it alone.
+async function reuseExisting(item, rawAmount) {
+  const patch = {};
+  if (item.done) patch.done = false;
+
+  const wanted = amountFrom(rawAmount).amount;
+  if (wanted && wanted !== item.amount) patch.amount = wanted;
+
+  flash(item.id);
+  toast(t(item.done ? 'item.backOnList' : 'item.already', { name: item.name }));
+
+  if (Object.keys(patch).length === 0) return;
+  try {
+    await updateDoc(doc(itemsCollection(), item.id), patch);
+  } catch (error) {
+    console.error('Could not update the existing item', error);
+    toast(describeError(error));
+  }
+}
+
+// Says where the item already is, rather than only saying that it is.
+function flash(id) {
+  const node = itemNodes.get(id);
+  if (!node) return;
+
+  node.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  node.classList.remove('flash');
+  void node.offsetWidth; // restart the animation if it is already running
+  node.classList.add('flash');
 }
 
 async function toggleItem(item) {
