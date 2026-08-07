@@ -31,6 +31,7 @@ import {
   DEPARTMENTS,
   FALLBACK_DEPARTMENT,
   departmentInfo,
+  emojiFor,
   guessDepartment,
   normalize,
 } from './departments.js';
@@ -606,11 +607,14 @@ function itemRow(item) {
     toggle.dataset.action = 'toggle';
     const box = document.createElement('span');
     box.className = 'checkbox';
+    const icon = document.createElement('span');
+    icon.className = 'item-emoji';
+    icon.setAttribute('aria-hidden', 'true'); // decorative; the name says what it is
     const name = document.createElement('span');
     name.className = 'item-name';
     const amount = document.createElement('span');
     amount.className = 'item-amount';
-    toggle.append(box, name, amount);
+    toggle.append(box, icon, name, amount);
 
     const remove = document.createElement('button');
     remove.className = 'item-delete';
@@ -623,7 +627,7 @@ function itemRow(item) {
   }
 
   const [toggle, remove] = node.children;
-  const [box, name, amount] = toggle.children;
+  const [box, icon, name, amount] = toggle.children;
 
   if (!isNew && node.classList.contains('done') !== !!item.done) {
     // Re-adding a class the element already had does nothing, so the animation
@@ -637,6 +641,9 @@ function itemRow(item) {
   node.classList.toggle('pending', !!item.pending);
   toggle.setAttribute('aria-pressed', String(!!item.done));
   box.textContent = item.done ? '✓' : '';
+  // Recomputed rather than stored: it changes nothing about where the row sits,
+  // so improving the dictionary improves lists that already exist.
+  icon.textContent = emojiFor(item.name);
   name.textContent = item.name; // textContent, not innerHTML — the name is data
   // A bare number reads better with a multiplication sign ("×6"); anything that
   // carries its own unit is shown exactly as it was typed ("50 dag").

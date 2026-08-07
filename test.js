@@ -8,7 +8,7 @@
 // where the whole design rests on refusing to guess. Both regressions found
 // during development were caught by cases like these, not by using the app.
 
-import { guessDepartment } from './departments.js';
+import { guessDepartment, emojiFor } from './departments.js';
 import { splitAmount } from './amount.js';
 import { record, suggest } from './history.js';
 import { t, setLocalePreference } from './i18n.js';
@@ -102,6 +102,21 @@ section('departments — gaps found by probing real shopping words');
   ['maszynka do golenia', 'chemia'], ['pianka do golenia', 'chemia'],
   ['żel do golenia', 'chemia'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
+
+section('emoji — the product, not the category');
+[
+  ['mleko', '🥛'], ['chleb', '🍞'], ['pomidory', '🍅'], ['szynka', '🥓'],
+  ['ser żółty', '🧀'], ['masło', '🧈'], ['masło orzechowe', '🥜'],
+  ['papier toaletowy', '🧻'], ['witaminy', '💊'], ['baterie', '🔋'],
+  // The section header already says Frozen, so the row shows what the thing is.
+  ['mrożony groszek', '🫘'],
+  // But juice is the noun and the fruit only qualifies it, hence the override.
+  ['sok jabłkowy', '🧃'], ['sok', '🧃'],
+  // Same collision as the departments had, in the parallel dictionary.
+  ['pasta do zębów', '🪥'], ['makaron', '🍝'],
+  // Nothing rather than a wrong guess; the row reserves the space anyway.
+  ['wihajster', ''], ['', ''],
+].forEach(([name, want]) => check(`  ${name || "(puste)"}`, emojiFor(name), want));
 
 // ============================================================================
 //  Amount splitting

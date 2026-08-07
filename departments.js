@@ -264,16 +264,154 @@ const KEYWORDS = {
   ],
 };
 
+// A picture for the item itself, matched the same way as the department but kept
+// separate from it: the department decides where a row sits, this only decides
+// what it looks like. It is therefore never stored — recomputed on every render,
+// so improving this list improves lists that already exist.
+//
+// Keyed by emoji so one picture can carry many stems without repeating itself.
+const EMOJI = {
+  '🥛': ['mlek', 'milk'],
+  '🧀': ['ser', 'sery', 'serek', 'twaro', 'feta', 'mozzarell', 'parmezan', 'gouda',
+         'cheddar', 'oscypek', 'bryndz', 'cheese', 'camembert', 'brie'],
+  '🧈': ['maslo', 'masla', 'margaryn', 'butter'],
+  '🥚': ['jajk', 'jaja', 'jajec', 'egg'],
+  '🍦': ['jogurt', 'kefir', 'maslank', 'smietan', 'skyr', 'yogurt', 'yoghurt', 'lody',
+         'ice cream'],
+  '🍞': ['chleb', 'pieczyw', 'razow', 'graham', 'tost', 'bread', 'toast', 'sourdough'],
+  '🥐': ['rogal', 'croissant', 'drozdzowk', 'paczek', 'paczki', 'donut', 'doughnut'],
+  '🥖': ['bagiet', 'baguette', 'bulk', 'bun', 'kajzerk'],
+  '🥨': ['precel', 'pretzel', 'obwarzanek', 'paluszk'],
+  '🍎': ['jablk', 'apple'],
+  '🍌': ['banan', 'banana'],
+  '🍊': ['pomarancz', 'mandarynk', 'orange', 'tangerine'],
+  '🍋': ['cytryn', 'limonk', 'lemon', 'lime'],
+  '🍇': ['winogron', 'grape', 'porzeczk', 'rodzynk', 'raisin'],
+  '🍓': ['truskawk', 'strawberr', 'malin', 'raspberr'],
+  '🫐': ['borowk', 'jagod', 'blueberr', 'zurawin', 'cranberr'],
+  '🍒': ['czeresn', 'wisni', 'cherr'],
+  '🍑': ['brzoskwin', 'nektaryn', 'peach', 'apricot', 'morel'],
+  '🍐': ['gruszk', 'pear'],
+  '🍉': ['arbuz', 'watermelon', 'melon'],
+  '🍍': ['ananas', 'pineapple'],
+  '🥝': ['kiwi'],
+  '🥭': ['mango', 'papaj', 'papaya'],
+  '🍅': ['pomidor', 'tomato', 'passat', 'koncentrat'],
+  '🥕': ['marchew', 'marchw', 'carrot'],
+  '🥔': ['ziemniak', 'potato', 'batat', 'frytk', 'fries'],
+  '🧅': ['cebul', 'onion', 'por', 'pory', 'porow', 'leek', 'szalotk', 'shallot'],
+  '🧄': ['czosnek', 'garlic', 'imbir', 'ginger'],
+  '🌽': ['kukurydz', 'corn', 'sweetcorn'],
+  '🥦': ['brokul', 'broccoli', 'kalafior', 'cauliflower', 'brukselk', 'kalarep'],
+  '🥬': ['salat', 'kapust', 'szpinak', 'rukol', 'lettuce', 'cabbage', 'spinach',
+         'kale', 'botwink', 'natka', 'pietruszk', 'koperek', 'szczypior'],
+  '🥒': ['ogork', 'ogorek', 'cucumber', 'cukini', 'zucchini', 'courgette', 'pickle'],
+  '🫑': ['papryk', 'pepper', 'chilli'],
+  '🍄': ['grzyb', 'pieczark', 'kurk', 'podgrzyb', 'borowik', 'maslak', 'boczniak',
+         'mushroom', 'chanterelle'],
+  '🥑': ['awokado', 'avocado'],
+  '🍆': ['baklazan', 'eggplant', 'aubergine'],
+  '🎃': ['dyni', 'dynia', 'pumpkin', 'squash'],
+  '🥩': ['mies', 'wolow', 'wieprzow', 'schab', 'karkowk', 'poledwic', 'beef', 'pork',
+         'steak', 'miel', 'mince', 'kotlet', 'lamb', 'veal'],
+  '🍗': ['kurczak', 'kurcze', 'indyk', 'chicken', 'turkey', 'udk', 'skrzydelk',
+         'drumstick', 'filet'],
+  '🥓': ['boczek', 'boczk', 'bacon', 'szynk', 'ham', 'prosciutto', 'pasztet', 'pate'],
+  '🌭': ['parowk', 'kielbas', 'kabanos', 'sausage', 'salami', 'chorizo', 'pepperoni',
+         'hot dog'],
+  '🐟': ['ryb', 'losos', 'sledz', 'dorsz', 'makrel', 'mintaj', 'pstrag', 'tunczyk',
+         'fish', 'salmon', 'tuna', 'herring', 'sardynk', 'sardine', 'szprot'],
+  '🍤': ['krewetk', 'shrimp', 'prawn'],
+  '🦀': ['krab', 'crab', 'surimi', 'paluszki krabowe', 'lobster'],
+  '🍚': ['ryz', 'rice', 'kasz', 'komos', 'quinoa', 'kuskus', 'couscous'],
+  '🍝': ['makaron', 'pasta', 'spaghetti', 'penne', 'lazani', 'noodle', 'kluski',
+         'zacierk', 'macaroni'],
+  '🥟': ['pierog', 'pyzy', 'kopytk', 'nugget'],
+  '🌾': ['maka', 'flour', 'platk', 'musli', 'granol', 'otreb', 'oat', 'cereal',
+         'cornflake', 'kaszk', 'semolina'],
+  '🫘': ['fasol', 'groch', 'soczewic', 'ciecierzyc', 'bean', 'lentil', 'chickpea',
+         'groszek'],
+  '🥫': ['konserw', 'canned', 'sos', 'sauce', 'ketchup', 'majonez', 'mayo', 'musztard',
+         'mustard', 'pesto', 'hummus', 'ajvar', 'bulion', 'przecier', 'salsa'],
+  '🫒': ['oliw', 'olej', 'oil', 'olive', 'ocet', 'vinegar'],
+  '🍯': ['miod', 'honey', 'dzem', 'jam', 'powidl', 'marmolad', 'marmalade', 'syrop',
+         'syrup'],
+  '🧂': ['sol', 'salt', 'pieprz', 'przypraw', 'spice', 'cynamon', 'cinnamon', 'oregano',
+         'bazyli', 'basil', 'curry', 'kurkum', 'turmeric', 'majeranek', 'tymianek',
+         'rozmaryn', 'wanili', 'vanilla', 'ziele angielskie', 'liscie laurowe'],
+  '🍫': ['czekolad', 'chocolate', 'nutell', 'baton', 'batonik'],
+  '🍬': ['cukierk', 'candy', 'sweets', 'zelk', 'gummy', 'lizak', 'lollipop', 'krowk',
+         'toffee', 'guma do zucia', 'chewing gum'],
+  '🍪': ['ciastk', 'herbatnik', 'biscuit', 'cookie', 'krakers', 'cracker', 'wafel',
+         'wafl', 'wafer', 'waffle', 'piernik', 'oreo', 'delicj'],
+  '🍰': ['ciasto', 'cake', 'sernik', 'keks', 'brownie', 'muffin'],
+  '🥜': ['orzech', 'orzeszk', 'nut', 'migdal', 'almond', 'nerkowc', 'cashew',
+         'pistacj', 'pistachio', 'walnut', 'hazelnut', 'maslo orzechowe',
+         'peanut butter', 'slonecznik', 'pestki', 'sezam', 'chia', 'siemie'],
+  '🍿': ['popcorn', 'chips', 'crisps', 'prazynk', 'nachos', 'snack'],
+  '💧': ['wod', 'water'],
+  '🧃': ['sok', 'juice', 'nektar', 'nectar', 'napoj', 'lemoniad', 'lemonade',
+         'oranzad', 'kompot', 'smoothie'],
+  '🥤': ['cola', 'pepsi', 'sprite', 'fant', 'soda', 'tonik', 'tonic', 'izoton',
+         'energet', 'energy drink', 'red bull', 'monster'],
+  '☕': ['kaw', 'coffee'],
+  '🍵': ['herbat', 'tea', 'rumianek', 'miet', 'matcha'],
+  '🍺': ['piw', 'beer', 'cydr', 'cider', 'ale', 'lager'],
+  '🍷': ['win', 'wine', 'prosecco', 'szampan', 'champagne'],
+  '🥃': ['wodk', 'vodka', 'whisky', 'whiskey', 'rum', 'gin', 'likier', 'liqueur',
+         'koniak', 'cognac', 'brandy', 'bourbon', 'tequil', 'nalewk'],
+  '🧻': ['papier toaletowy', 'toilet paper', 'toilet roll', 'reczniki papierowe',
+         'paper towel', 'kitchen roll', 'chusteczk', 'tissue', 'serwetk', 'napkin'],
+  '🧼': ['mydl', 'soap', 'plyn do naczyn', 'dish soap', 'washing up liquid'],
+  '🧴': ['szampon', 'shampoo', 'odzywk', 'conditioner', 'zel', 'balsam', 'lotion',
+         'krem', 'cream', 'plyn', 'dezodorant', 'deodorant', 'antyperspirant',
+         'perfum', 'sunscreen'],
+  // 'pasta do zeb' for the same reason it exists in the department list: the
+  // Italian 'pasta' is longer than 'past' and would otherwise win.
+  '🪥': ['szczoteczk', 'toothbrush', 'past', 'pasta do zeb', 'toothpaste', 'nic dentystyczn',
+         'nitka dentystyczn', 'floss', 'plyn do plukania ust', 'mouthwash'],
+  '🧽': ['gabk', 'sponge', 'zmywak', 'druciak', 'scourer', 'sciereczk'],
+  '🧺': ['proszek do prania', 'plyn do prania', 'detergent', 'laundry', 'kapsulki do prania',
+         'plyn do plukania', 'fabric softener', 'wybielacz', 'bleach'],
+  '🪒': ['do golenia', 'golark', 'zyletk', 'razor', 'shaving'],
+  '🧷': ['podpask', 'tampon', 'pieluch', 'diaper', 'nappy', 'wkladki', 'sanitary pad',
+         'prezerwatyw', 'condom'],
+  '💊': ['suplement', 'supplement', 'witamin', 'vitamin', 'magnez', 'magnesium',
+         'elektrolit', 'electrolyte', 'kolagen', 'collagen', 'probiotyk', 'probiotic',
+         'tabletki', 'paracetamol', 'ibuprofen', 'apap', 'cynk', 'zinc', 'omega',
+         'tran', 'melatonin', 'kreatyn', 'masc'],
+  '🩹': ['plaster', 'plastry', 'band aid', 'wata', 'wacik', 'patyczki', 'cotton bud'],
+  '🔋': ['bateri', 'battery', 'batteries'],
+  '💡': ['zarowk', 'bulb', 'light bulb'],
+  '🕯': ['swieczk', 'swiec', 'candle', 'znicz'],
+  '🔥': ['zapalk', 'match', 'zapalniczk', 'lighter'],
+  '🗑': ['worki na smieci', 'worki', 'bin bag', 'trash bag', 'garbage bag'],
+  '🐕': ['karma', 'pet food', 'dog food', 'cat food', 'zwirek', 'litter', 'smycz',
+         'leash', 'obroza', 'collar'],
+  '🌻': ['kwiat', 'flower', 'doniczk', 'plant pot', 'nawoz', 'fertilizer'],
+  '🧊': ['mrozon', 'frozen', 'kostki lodu', 'ice cube'],
+  '🥥': ['kokos', 'coconut'],
+  '🍠': ['sweet potato', 'burak', 'beetroot', 'rzodkiew', 'radish', 'seler', 'celery',
+         'turnip'],
+};
+
 // Flat list of [stem, department] sorted longest stem first, so the first hit
 // is already the best hit.
+// Shared by the department lists and the emoji list: same stems, same
+// longest-wins rule, different answer. Hence "value" rather than "dept".
 function compile(source) {
   return Object.entries(source)
-    .flatMap(([dept, stems]) => stems.map((stem) => ({ stem, dept })))
+    .flatMap(([value, stems]) => stems.map((stem) => ({ stem, value })))
     .sort((a, b) => b.stem.length - a.stem.length);
 }
 
 const DOMINANT_RULES = compile(DOMINANT_KEYWORDS);
 const RULES = compile(KEYWORDS);
+// Same problem as the departments have: "jablk" is longer than "sok", so apple
+// juice would come out as an apple. The drink is the noun here; in "frozen peas"
+// the peas are, which is why frozen is deliberately not on this list.
+const EMOJI_DOMINANT = compile({ '🧃': ['sok', 'juice', 'nektar', 'nectar'] });
+const EMOJI_RULES = compile(EMOJI);
 
 // Reduces a name to a comparable form: lowercase, no Polish diacritics, no
 // punctuation, single spaces. "Ogórki 2 szt." -> "ogorki 2 szt"
@@ -289,11 +427,11 @@ export function normalize(text) {
 }
 
 function firstMatch(rules, normalized, words) {
-  for (const { stem, dept } of rules) {
+  for (const { stem, value } of rules) {
     const hit = stem.includes(' ')
       ? normalized.includes(stem)
       : words.some((word) => word.startsWith(stem));
-    if (hit) return dept;
+    if (hit) return value;
   }
   return null;
 }
@@ -307,4 +445,15 @@ export function guessDepartment(name) {
   return firstMatch(DOMINANT_RULES, normalized, words)
     ?? firstMatch(RULES, normalized, words)
     ?? FALLBACK_DEPARTMENT;
+}
+
+// Empty when nothing matches. The row reserves the space either way, so names
+// stay in one column instead of stepping in and out depending on the item.
+export function emojiFor(name) {
+  const normalized = normalize(name);
+  if (!normalized) return '';
+  const words = normalized.split(' ');
+  return firstMatch(EMOJI_DOMINANT, normalized, words)
+    ?? firstMatch(EMOJI_RULES, normalized, words)
+    ?? '';
 }

@@ -307,6 +307,16 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 /* Only plays when the state actually changed, never on an unrelated re-render. */
 .item.just-toggled .checkbox { animation: pop calc(var(--speed) * 1.4) ease-out; }
 .item.done .checkbox { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+/* Fixed width whether or not there is a picture, so names stay in one column
+   instead of stepping in and out from row to row. */
+.item-emoji {
+  flex: none;
+  font-size: 1.05rem;
+  line-height: 1;
+  text-align: center;
+  width: 1.5rem;
+}
+
 .item-name {
   min-width: 0; /* without this a flex child refuses to shrink and ellipsis never kicks in */
   overflow: hidden;

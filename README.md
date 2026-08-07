@@ -126,6 +126,13 @@ the list. An amount given at that point replaces the old one. Two people adding
 the same thing at the same moment can still produce two rows: the check is local
 to whoever is typing.
 
+**Emoji.** Each row shows a picture matched from the same stem dictionary. It is
+never stored — recomputed on every render, because unlike the department it
+decides nothing about where a row sits, so improving the list improves lists that
+already exist. It describes the product rather than the aisle: "mrożony groszek"
+gets peas, since the section header already says Frozen. Rows with no match keep
+the space, so names stay in one column.
+
 **Amounts.** Free text, not a number: "50" alone cannot say whether it means
 slices, grams or decagrams. Blank or "1" store nothing at all.
 [`amount.js`](amount.js) lifts an amount out of the name when it carries a unit —
