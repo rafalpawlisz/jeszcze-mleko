@@ -34,6 +34,16 @@ service cloud.firestore {
 
       // 'name' is optional. A list without one shows a title translated on each
       // device, instead of freezing the creator's language for everybody.
+      // A member may edit the list, but the members map is not theirs to rewrite:
+      // they may only add or remove their own key. Without this, any member could
+      // kick everybody else out or quietly add a stranger's uid — measured, not
+      // theorised: both went through before this existed.
+      function membersOnlySelf() {
+        return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['members'])
+          || request.resource.data.members.diff(resource.data.members)
+               .affectedKeys().hasOnly([request.auth.uid]);
+      }
+
       function validList() {
         return request.resource.data.keys().hasOnly(['name', 'code', 'members', 'createdAt'])
           && (!('name' in request.resource.data) || (
@@ -56,7 +66,7 @@ service cloud.firestore {
       allow create: if signedIn()
         && validList()
         && request.resource.data.members.keys().hasOnly([request.auth.uid]);
-      allow update: if (isMember() && validList()) || joiningSelf();
+      allow update: if (isMember() && validList() && membersOnlySelf()) || joiningSelf();
       allow delete: if lastMember();
 
       match /items/{itemId} {

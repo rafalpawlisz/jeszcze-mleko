@@ -71,6 +71,7 @@ const db = initializeFirestore(app, {
 // ============================================================================
 
 const STORAGE_KEY = 'jeszcze-mleko:listId';
+const NAME_MAX = 60; // mirrored in firestore.rules and the field's maxlength
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L — nothing to misread
 const CODE_LENGTH = 6;
 
@@ -325,7 +326,8 @@ async function leaveList() {
   if (!confirmed) return;
 
   // Captured before detaching, which clears them.
-  const { listId, uid } = { listId: state.listId, uid: state.uid };
+  const listId = state.listId;
+  const uid = state.uid;
   const code = state.list?.code;
   const items = state.items;
 
@@ -769,8 +771,19 @@ async function inBatches(entries, apply) {
 //  Settings
 // ============================================================================
 
-function openSettings() { el.settings.hidden = false; }
-function closeSettings() { el.settings.hidden = true; }
+// The sheet claims aria-modal, so the rest of the screen has to actually become
+// inert — otherwise Tab still walks through the list behind it and a screen
+// reader is told something untrue about the page.
+function openSettings() {
+  el.settings.hidden = false;
+  el.screenList.inert = true;
+  el.inputListName.focus();
+}
+
+function closeSettings() {
+  el.settings.hidden = true;
+  el.screenList.inert = false;
+}
 
 async function copyCode() {
   const code = state.list?.code;
@@ -824,7 +837,10 @@ function changeLanguage(preference) {
 async function renameList() {
   if (!state.listId) return;
 
-  const name = el.inputListName.value.trim().replace(/\s+/g, ' ').slice(0, 60);
+  // Trimmed again after slicing: a cut landing on a space would otherwise store
+  // one. Same reasoning as amountFrom; the cap is repeated in the rules and in
+  // the field's maxlength, which cannot import anything.
+  const name = el.inputListName.value.trim().replace(/\s+/g, ' ').slice(0, NAME_MAX).trim();
   if (name === (state.list?.name ?? '')) return; // nothing actually changed
 
   try {
