@@ -325,7 +325,11 @@ mattering, and the departments above then read as exactly what is still left to
 find. The section is view-only — nothing about it is stored, and unchecking an
 item sends it straight back to its department.
 
-Want your own products in there? Add a stem to the right array in `KEYWORDS`.
+Want your own products in there? Add a stem to the right array in `KEYWORDS`. If
+something genuinely has no home, add a department to `DEPARTMENTS` and a label to
+both locales — that is what happened for supplements, which are not cleaning
+products and did not belong in `chemia`. Department ids are stored on items, so
+adding one is backwards compatible: existing items keep the id they were given.
 
 ---
 

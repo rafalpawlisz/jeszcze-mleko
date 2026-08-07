@@ -20,6 +20,7 @@ export const DEPARTMENTS = [
   { id: 'napoje',    icon: '🧃' },
   { id: 'alkohole',  icon: '🍷' },
   { id: 'chemia',    icon: '🧼' },
+  { id: 'zdrowie',   icon: '💊' },
   { id: 'dom',       icon: '🏠' },
   { id: 'inne',      icon: '🛒' },
 ];
@@ -60,6 +61,10 @@ const KEYWORDS = {
     'pomidor', 'ogork', 'ogorek', 'salat', 'kapust', 'marchew', 'marchw',
     'ziemniak', 'cebul', 'czosnek', 'papryk', 'pieczark', 'grzyb', 'brokul',
     'kalafior', 'cukini', 'baklazan', 'dyni', 'dynia', 'burak', 'rzodkiew',
+    // Named mushrooms: none of them start with "grzyb", and "maslak" would
+    // otherwise be swallowed by "masla" from the dairy list.
+    'kurk', 'podgrzyb', 'borowik', 'maslak', 'boczniak', 'kania', 'opienk',
+    'shiitake', 'portobello', 'chanterelle', 'porcini',
     'pory', 'porow', 'seler', 'pietruszk', 'koperek', 'koper', 'szczypior',
     'natka', 'szpinak', 'rukol', 'roszponk', 'botwink', 'kalarep', 'brukselk',
     'fasolk szparagow', 'bob', 'kielki', 'imbir', 'batat', 'awokado',
@@ -204,7 +209,11 @@ const KEYWORDS = {
   chemia: [
     // pl
     'papier toaletowy', 'reczniki papierowe', 'recznik papierowy', 'chusteczk',
-    'mydl', 'szampon', 'odzywk', 'zel', 'past', 'szczoteczk', 'nitka dentystyczna',
+    'mydl', 'szampon', 'odzywk', 'zel', 'past', 'szczoteczk',
+    // Both spellings: "nić" is what people actually say, "nitka" was the guess.
+    'nic dentystyczn', 'nitka dentystyczn', 'rekawiczk', 'glove',
+    // Longer than the "pasta" that means noodles, which would otherwise win.
+    'pasta do zeb', 'pasta do but',
     'plyn do plukania ust', 'dezodorant', 'antyperspirant', 'perfum',
     'plyn do naczyn', 'plyn do prania', 'plyn do plukania', 'plyn', 'proszek do prania',
     'proszek', 'kapsulki do prania', 'wybielacz', 'odkamieniacz', 'odplamiacz',
@@ -222,6 +231,19 @@ const KEYWORDS = {
     'air freshener', 'face cream', 'lotion', 'razor', 'shaving', 'sanitary pad',
     'diaper', 'nappy', 'wipes', 'dishwasher tablet', 'floss', 'mouthwash',
     'cotton bud', 'cotton pad', 'plaster', 'band aid', 'sanitizer', 'sunscreen',
+  ],
+  // Supplements and over-the-counter remedies. Added as their own department
+  // rather than folded into chemia: a probiotic is not a cleaning product, and
+  // stretching an existing department to fit would make its name a lie.
+  zdrowie: [
+    // pl
+    'suplement', 'witamin', 'magnez', 'elektrolit', 'kolagen', 'probiotyk',
+    'omega', 'tran', 'cynk', 'melatonin', 'kreatyn', 'masc', 'tabletki',
+    'syrop na kaszel', 'paracetamol', 'ibuprofen', 'apap', 'rutinoscorbin',
+    'ibuprom', 'termometr', 'zelazo w tabletkach', 'wapn w tabletkach',
+    // en
+    'supplement', 'vitamin', 'magnesium', 'electrolyte', 'collagen',
+    'probiotic', 'zinc', 'painkiller', 'lozenge', 'cough syrup',
   ],
   dom: [
     // pl
