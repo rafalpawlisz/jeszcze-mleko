@@ -100,6 +100,26 @@ service cloud.firestore {
       }
     }
 
+    // Names that matched no department, so the dictionary can be improved.
+    //
+    // Write-only from the client, deliberately: item names can be personal, and
+    // nobody using the app should be able to read back what anybody else typed.
+    // The owner reads this in the Firebase console. Only the name and a counter
+    // are stored — no uid, no list id, nothing tying a name to a person.
+    match /unmatched/{key} {
+      allow read: if false;
+      allow delete: if false;
+
+      allow create, update: if signedIn()
+        && request.resource.data.keys().hasOnly(['name', 'count', 'lastSeen'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.count is int
+        && request.resource.data.count > 0
+        && request.resource.data.lastSeen is timestamp;
+    }
+
     // Reverse index code -> listId. Someone joining has to turn the code into a
     // listId before they are allowed to read the list itself, which is why this
     // is a separate collection.

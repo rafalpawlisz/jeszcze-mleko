@@ -15,6 +15,15 @@ export const firebaseConfig = {
   appId: "1:397373761185:web:a87e3328b1b6986d2332e0"
 };
 
+// When an item matches no department, record its name in the `unmatched`
+// collection so the dictionary can be improved from real usage. Only the name
+// and a counter are stored — no uid, no list id — and the collection cannot be
+// read by the app, only from the Firebase console.
+//
+// Worth a thought before leaving this on: the deployed page is public, so names
+// typed by anyone who finds it land here too, not only your household's.
+export const collectUnmatched = true;
+
 // Site key from the reCAPTCHA console (type: reCAPTCHA v3). Not a secret either
 // — the secret key is the one you paste only into the Firebase console.
 export const recaptchaSiteKey = '6LfICHEtAAAAANyxphXi5wAaDtzt8Ryyhc1d3lDn';

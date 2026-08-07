@@ -21,12 +21,19 @@ import {
   deleteDoc,
   deleteField,
   onSnapshot,
+  increment,
   serverTimestamp,
   writeBatch,
 } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
 
-import { firebaseConfig, recaptchaSiteKey } from './firebase-config.js';
-import { DEPARTMENTS, departmentInfo, guessDepartment } from './departments.js';
+import { firebaseConfig, recaptchaSiteKey, collectUnmatched } from './firebase-config.js';
+import {
+  DEPARTMENTS,
+  FALLBACK_DEPARTMENT,
+  departmentInfo,
+  guessDepartment,
+  normalize,
+} from './departments.js';
 import { record, seed, suggest } from './history.js';
 import { splitAmount, AMOUNT_MAX } from './amount.js';
 import {
@@ -652,6 +659,29 @@ function amountFrom(raw) {
   return amount && amount !== '1' ? { amount } : {};
 }
 
+// Records a name that matched no department, so the dictionary can be improved
+// from what people actually type. Aggregated by normalized name with a counter,
+// so the collection stays small and the frequent gaps stand out.
+//
+// Fire-and-forget: this is housekeeping, and it must never delay or fail the
+// thing the user actually asked for.
+function reportUnmatched(name) {
+  if (!collectUnmatched) return;
+
+  const key = normalize(name);
+  if (!key) return;
+
+  // Nothing here identifies anyone: no uid, no list id. The rules make the
+  // collection write-only, so the app cannot read back what anyone typed.
+  setDoc(doc(db, 'unmatched', key), {
+    name,
+    count: increment(1),
+    lastSeen: serverTimestamp(),
+  }, { merge: true }).catch((error) => {
+    console.warn('Could not record an uncategorised name', error);
+  });
+}
+
 async function addItem(rawName, rawAmount) {
   // People type "szynka 50 dag" in one go rather than reaching for the amount
   // field, so an amount with a unit is lifted out of the name. Only when the
@@ -669,10 +699,13 @@ async function addItem(rawName, rawAmount) {
   // The department is resolved once, when the item is added, and stored on the
   // document. If the dictionary changes later, nobody's list gets reshuffled
   // in the middle of a shopping trip.
+  const dept = guessDepartment(name);
+  if (dept === FALLBACK_DEPARTMENT) reportUnmatched(name);
+
   try {
     await addDoc(itemsCollection(), {
       name,
-      dept: guessDepartment(name),
+      dept,
       done: false,
       createdAt: serverTimestamp(),
       ...amountFrom(typed || split.amount),

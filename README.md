@@ -163,6 +163,7 @@ one, which then has to be registered again.
 lists/{listId}              code, members: { uid: true }, createdAt, name?
 lists/{listId}/items/{id}   name, dept, done, createdAt, amount?
 codes/{CODE}                listId
+unmatched/{name}            name, count, lastSeen
 ```
 
 `amount` is free text — "6", "50 dag", "1,5 l", "pół kilo" — and is written only
@@ -324,6 +325,20 @@ section at the very bottom. Once an item is in the basket its aisle stops
 mattering, and the departments above then read as exactly what is still left to
 find. The section is view-only — nothing about it is stored, and unchecking an
 item sends it straight back to its department.
+
+Names that match nothing are recorded in the `unmatched` collection, so the gaps
+can be filled from what people actually type instead of from guesswork — the
+counter shows which ones are worth the effort. Read it in the Firebase console:
+the rules make that collection **write-only for the app**, since item names can be
+personal and nobody using the app should be able to read back what anyone else
+typed. Only the name and a count are stored, with no uid and no list id, so a name
+cannot be traced to a person.
+
+The deployed page is public, so this collects from anyone who finds it, not only
+from your household. Set `collectUnmatched` to `false` in
+[`firebase-config.js`](firebase-config.js) to turn it off. Writing it is
+fire-and-forget: if it fails, adding the item still succeeds and only a console
+warning is left behind.
 
 Want your own products in there? Add a stem to the right array in `KEYWORDS`. If
 something genuinely has no home, add a department to `DEPARTMENTS` and a label to
