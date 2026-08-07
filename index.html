@@ -126,7 +126,10 @@
 
 <!-- ===================== Settings sheet ===================== -->
 <div id="settings" class="sheet-backdrop" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <!-- tabindex so focus can move into the sheet without landing in a text
+       field, which would pop the keyboard on a phone. -->
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title"
+       tabindex="-1">
     <h2 id="settings-title" data-i18n="settings.title">Settings</h2>
 
     <!-- Shared with everyone on the list, but shown only here: the header stays
@@ -178,7 +181,9 @@
   </div>
 </dialog>
 
-<div id="toast" class="toast" hidden>
+<!-- A live region: undo lives here, and replacing the confirmation dialog with
+     undo only works if everyone is told it is available. -->
+<div id="toast" class="toast" role="status" aria-live="polite" hidden>
   <span id="toast-message"></span>
   <button id="toast-action" class="toast-action" hidden></button>
 </div>

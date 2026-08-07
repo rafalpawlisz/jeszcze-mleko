@@ -157,6 +157,11 @@ let toastTimer = null;
 // action, when given, is { label, onClick } and turns the toast into the undo
 // affordance — which is what lets destructive actions skip a confirmation.
 function toast(message, action = null) {
+  // Unhidden before the text is written: a live region that is display:none when
+  // its content changes may never be announced, and undo is the only protection
+  // left now that destructive actions ask for no confirmation.
+  el.toast.hidden = false;
+
   el.toastMessage.textContent = message;
   el.toastAction.hidden = !action;
   if (action) {
@@ -168,7 +173,6 @@ function toast(message, action = null) {
     };
   }
 
-  el.toast.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.toast.hidden = true; }, action ? 6000 : 2600);
 }
@@ -816,7 +820,9 @@ async function inBatches(entries, apply) {
 function openSettings() {
   el.settings.hidden = false;
   el.screenList.inert = true;
-  el.inputListName.focus();
+  // The sheet itself, not the name field: focusing a text input here would open
+  // the keyboard on a phone every time somebody opens settings to copy the code.
+  el.settings.firstElementChild.focus();
 }
 
 function closeSettings() {
