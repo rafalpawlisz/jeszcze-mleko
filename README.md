@@ -171,6 +171,21 @@ so this collects from anyone who finds it. `collectUnmatched` in
 | [`sw.js`](sw.js) | service worker — offline and installability |
 | [`firestore.rules`](firestore.rules) | rules to paste into the Firebase console |
 | [`serve.js`](serve.js) | static server for local development |
+| [`test.js`](test.js) | the checks above, run with plain Node |
+
+## Tests
+
+```bash
+node test.js
+```
+
+No framework, no dependencies; exits non-zero on failure. It covers the two
+places where a small edit quietly breaks something far away: the department
+dictionary, where one added stem can steal words from another department, and the
+amount parser, whose whole design rests on refusing to guess. Both regressions
+found during development — "pasta do zębów" filed as dry goods, and a language
+choice that did nothing without localStorage — were caught this way rather than by
+using the app.
 
 ## After changing anything
 

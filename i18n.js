@@ -181,7 +181,12 @@ const STRINGS = {
 };
 
 // 'auto' means "follow the browser"; anything else is an explicit override.
-function storedPreference() {
+//
+// The preference is held here, in memory, and only *persisted* to localStorage.
+// Reading it back from storage instead would mean that wherever storage is
+// unavailable — private mode, blocked site data — choosing a language in
+// settings silently did nothing at all.
+function readStoredPreference() {
   try {
     return localStorage.getItem(STORAGE_KEY) || 'auto';
   } catch {
@@ -189,12 +194,11 @@ function storedPreference() {
   }
 }
 
-function detectLocale() {
-  const preference = storedPreference();
-  if (LOCALES.includes(preference)) return preference;
+function resolveLocale(pref) {
+  if (LOCALES.includes(pref)) return pref;
 
   // navigator.languages is ordered by preference; take the first one we ship.
-  const tags = navigator.languages?.length ? navigator.languages : [navigator.language];
+  const tags = navigator?.languages?.length ? navigator.languages : [navigator?.language];
   for (const tag of tags) {
     const base = String(tag).toLowerCase().split('-')[0];
     if (LOCALES.includes(base)) return base;
@@ -202,26 +206,31 @@ function detectLocale() {
   return DEFAULT_LOCALE;
 }
 
-let locale = detectLocale();
+let preference = readStoredPreference();
+let locale = resolveLocale(preference);
 
 export function getLocale() {
   return locale;
 }
 
 export function getLocalePreference() {
-  return storedPreference();
+  return preference;
 }
 
 // preference: 'auto' | 'en' | 'pl'
-export function setLocalePreference(preference) {
+export function setLocalePreference(next) {
+  preference = LOCALES.includes(next) ? next : 'auto';
+
   try {
     if (preference === 'auto') localStorage.removeItem(STORAGE_KEY);
     else localStorage.setItem(STORAGE_KEY, preference);
   } catch {
     // Private mode without storage — the choice just won't survive a reload.
   }
-  locale = detectLocale();
-  document.documentElement.lang = locale;
+
+  locale = resolveLocale(preference);
+  // Guarded so the module can be exercised outside a browser, by test.js.
+  if (typeof document !== 'undefined') document.documentElement.lang = locale;
   return locale;
 }
 
