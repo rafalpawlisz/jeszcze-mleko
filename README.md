@@ -18,6 +18,10 @@ repository *is* what gets served.
 
 Live at **https://rafalpawlisz.github.io/jeszcze-mleko/**
 
+<img src="docs/screenshot.png" width="300"
+     alt="The list on a phone: items grouped under store departments, each with an
+          emoji and an optional amount, and a Bought section at the bottom.">
+
 ---
 
 ## Setup
