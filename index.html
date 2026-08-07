@@ -72,8 +72,8 @@
          a screen reader should not announce it twice. -->
     <img class="topbar-logo" src="./icons/apple-touch-icon.png" alt=""
          width="22" height="22">
-    <!-- The app name, not a translated string: it is a proper noun. Also the
-         fallback JS reads when a list has no name of its own. -->
+    <!-- The app name, not a translated string: it is a proper noun. The list has
+         a name of its own, but it is shown in settings rather than here. -->
     <h1 id="list-title">Jeszcze Mleko</h1>
     <div class="topbar-actions">
       <!-- Icon plus a count: the full wording would leave the title no room at
@@ -128,6 +128,15 @@
 <div id="settings" class="sheet-backdrop" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <h2 id="settings-title" data-i18n="settings.title">Settings</h2>
+
+    <!-- Shared with everyone on the list, but shown only here: the header stays
+         the app's own name, and this is a label you check occasionally. -->
+    <label class="field">
+      <span class="muted" data-i18n="settings.listName">List name</span>
+      <input id="input-list-name" class="input" type="text" autocomplete="off"
+             maxlength="60" placeholder="Unnamed"
+             data-i18n-placeholder="settings.listNamePlaceholder">
+    </label>
 
     <p class="muted" data-i18n="settings.codeIntro">Invite code — share it so others can join this list:</p>
     <div class="code-box">

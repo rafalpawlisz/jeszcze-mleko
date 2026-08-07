@@ -55,6 +55,8 @@ const STRINGS = {
     'install.dismiss': 'Dismiss',
 
     'settings.title': 'Settings',
+    'settings.listName': 'List name',
+    'settings.listNamePlaceholder': 'Unnamed',
     'settings.codeIntro': 'Invite code — share it so others can join this list:',
     'settings.copy': 'Copy',
     'settings.copied': 'Code copied.',
@@ -137,6 +139,8 @@ const STRINGS = {
     'install.dismiss': 'Zamknij',
 
     'settings.title': 'Ustawienia',
+    'settings.listName': 'Nazwa listy',
+    'settings.listNamePlaceholder': 'Bez nazwy',
     'settings.codeIntro': 'Kod zaproszenia — podaj go domownikom, żeby dołączyli do tej listy:',
     'settings.copy': 'Kopiuj',
     'settings.copied': 'Skopiowano kod.',

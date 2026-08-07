@@ -98,7 +98,6 @@ const el = {
   formJoin: $('form-join'),
   inputCode: $('input-code'),
   welcomeError: $('welcome-error'),
-  listTitle: $('list-title'),
   btnClearDone: $('btn-clear-done'),
   btnSettings: $('btn-settings'),
   offlineBanner: $('offline-banner'),
@@ -110,6 +109,7 @@ const el = {
   suggestions: $('suggestions'),
   settings: $('settings'),
   settingsCode: $('settings-code'),
+  inputListName: $('input-list-name'),
   btnCopyCode: $('btn-copy-code'),
   btnLeave: $('btn-leave'),
   btnCloseSettings: $('btn-close-settings'),
@@ -129,9 +129,9 @@ const el = {
   btnDismissHint: $('btn-dismiss-hint'),
 };
 
-// The app name lives in the markup, not here, and is never translated — it is a
-// proper noun. Captured before anything can overwrite the heading.
-const APP_NAME = el.listTitle.textContent;
+// The heading is the app's own name, set once in the markup and never touched
+// from here: it is a proper noun, so it is not translated, and the list's own
+// name deliberately lives in settings instead of replacing it.
 
 // The markup ships English defaults; swap them for the detected language before
 // anything is shown.
@@ -397,8 +397,14 @@ function openList(listId) {
         return;
       }
       state.list = snap.data();
-      el.listTitle.textContent = state.list.name || APP_NAME;
       el.settingsCode.textContent = state.list.code || '------';
+
+      // The name belongs to the list and is shared, so another member renaming
+      // it shows up here — but never while this device is mid-edit, or the
+      // field would be yanked out from under the person typing.
+      if (document.activeElement !== el.inputListName) {
+        el.inputListName.value = state.list.name ?? '';
+      }
     },
     (error) => {
       console.error('List subscription dropped', error);
@@ -810,8 +816,28 @@ function clearSuggestions() {
 function changeLanguage(preference) {
   setLocalePreference(preference);
   applyTranslations();
-  if (state.list) el.listTitle.textContent = state.list.name || APP_NAME;
   renderItems();
+}
+
+// Saved on blur or Enter rather than on every keystroke — a rename is a rare,
+// deliberate act and does not need a write per character.
+async function renameList() {
+  if (!state.listId) return;
+
+  const name = el.inputListName.value.trim().replace(/\s+/g, ' ').slice(0, 60);
+  if (name === (state.list?.name ?? '')) return; // nothing actually changed
+
+  try {
+    // An empty field removes the field entirely rather than storing "", which
+    // the rules reject anyway: absent is how "no name" is spelled.
+    await updateDoc(doc(db, 'lists', state.listId), {
+      name: name ? name : deleteField(),
+    });
+  } catch (error) {
+    console.error('Renaming the list failed', error);
+    toast(describeError(error));
+    el.inputListName.value = state.list?.name ?? ''; // put back what is stored
+  }
 }
 
 // ============================================================================
@@ -875,6 +901,7 @@ el.btnClearDone.addEventListener('click', clearDone);
 el.btnSettings.addEventListener('click', openSettings);
 el.btnCloseSettings.addEventListener('click', closeSettings);
 el.btnCopyCode.addEventListener('click', copyCode);
+el.inputListName.addEventListener('change', renameList); // fires on blur and on Enter
 el.btnLeave.addEventListener('click', leaveList);
 el.selectLanguage.addEventListener('change', () => changeLanguage(el.selectLanguage.value));
 

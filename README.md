@@ -195,9 +195,15 @@ worse — asking after each add breaks the burst-add loop the app is built aroun
 and putting it behind a tap on the row collides with the tap that checks an item
 off, which is the most-used gesture in the shop.
 
-`name` on a list is **optional** and the app never writes it. Without it the
-heading at the top is translated separately on every device. The field stays in
-the rules in case a rename feature is added later.
+`name` on a list is **optional**. It can be set in settings and is shared with
+everyone on the list, but it is shown **only in that panel** — the heading stays
+the app's own name, which is a proper noun and never translated. A list name is a
+label you check occasionally, not something worth spending the header on.
+
+An empty field removes the key rather than storing `""`, which the rules reject
+anyway: absent is how "no name" is spelled. The field is saved on blur or Enter,
+not per keystroke, and an incoming rename from another member is never applied
+while this device has the field focused.
 
 `codes` is a separate collection because someone joining is not yet allowed to
 read the list document — they have to turn the code into a `listId` first, and
