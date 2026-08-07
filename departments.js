@@ -96,7 +96,7 @@ const KEYWORDS = {
   ],
   nabial: [
     // pl
-    'mlek', 'mlecz', 'ser', 'serk', 'sery', 'twarog', 'jogurt', 'kefir',
+    'mlek', 'mlecz', 'ser', 'serk', 'sery', 'twaro', 'jogurt', 'kefir',
     'maslank', 'smietan', 'smietank', 'maslo', 'masla', 'jajk', 'jaja', 'jajec',
     'mozzarell', 'feta', 'parmezan', 'mascarpone', 'skyr', 'ricott',
     'camembert', 'brie', 'oscypek', 'gouda', 'cheddar', 'bryndz', 'margaryn',
@@ -218,7 +218,8 @@ const KEYWORDS = {
     'plyn do naczyn', 'plyn do prania', 'plyn do plukania', 'plyn', 'proszek do prania',
     'proszek', 'kapsulki do prania', 'wybielacz', 'odkamieniacz', 'odplamiacz',
     'gabk', 'druciak', 'sciereczk', 'odswiezacz', 'krem', 'balsam', 'golark',
-    'maszynk do golenia', 'zyletk', 'pianka do golenia', 'podpask', 'tampon',
+    'do golenia', 'zyletk', 'podpask', 'tampon', 'prezerwatyw',
+    'wacik', 'zmywak', 'condom', 'shaving',
     'wkladki', 'pieluch', 'mokre chusteczki', 'domestos', 'ludwik', 'cif',
     'mydelko', 'plyn do szyb', 'wc', 'kostka do wc', 'tabletki do zmywarki',
     'nablyszczacz', 'sol do zmywarki', 'wata', 'patyczki',
@@ -250,7 +251,8 @@ const KEYWORDS = {
     'bateri', 'zarowk', 'swieczk', 'swiec', 'zapalk', 'folia', 'folia aluminiowa',
     'papier do pieczenia', 'karma', 'zwirek', 'kuweta', 'smycz', 'obroza',
     'serwetk', 'slomk', 'sztucce', 'kubki jednorazowe', 'talerzyki',
-    'worki na smieci', 'worki', 'torebki sniadaniowe', 'doniczk', 'nawoz',
+    'worki na smieci', 'worki', 'torebki sniadaniowe', 'papier sniadaniowy',
+    'sandwich bag', 'doniczk', 'nawoz',
     'kwiat', 'znicz', 'sznurek', 'tasma', 'klej', 'dlugopis', 'zeszyt',
     'reklamowk', 'siatk', 'zapalniczk', 'wklad',
     // en

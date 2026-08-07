@@ -90,6 +90,19 @@ section('departments — health');
   ['rękawiczki nitrylowe', 'chemia'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
+section('departments — gaps found by probing real shopping words');
+[
+  ['prezerwatywy', 'chemia'], ['wacik', 'chemia'], ['zmywak', 'chemia'],
+  ['papier śniadaniowy', 'dom'],
+  // "twaróg" alone missed "twarożek": one letter differs in the middle.
+  ['twaróg', 'nabial'], ['twarożek', 'nabial'], ['serek wiejski', 'nabial'],
+  // A phrase built on a stem never matched, because a phrase is compared as a
+  // substring and "maszynka" is not "maszynk" followed by a space. Matching on
+  // "do golenia" covers the razor, the foam and the gel at once.
+  ['maszynka do golenia', 'chemia'], ['pianka do golenia', 'chemia'],
+  ['żel do golenia', 'chemia'],
+].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
+
 // ============================================================================
 //  Amount splitting
 // ============================================================================
