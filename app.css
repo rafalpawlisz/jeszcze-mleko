@@ -36,6 +36,12 @@
 
 * { box-sizing: border-box; }
 
+/* The browser hides [hidden] from its own stylesheet, which any author rule
+   setting display beats — so a class like .banner-hint { display: flex } made the
+   attribute do nothing at all. This is deliberately !important: hidden means
+   hidden, and every future component that sets display gets it for free. */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   height: 100%;
@@ -71,7 +77,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 /* ---------- screens ---------- */
 
 .screen { display: block; min-height: 100%; }
-.screen[hidden] { display: none; }
 
 .centered {
   align-items: center;
@@ -171,7 +176,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   height: 100dvh;
   padding-bottom: var(--keyboard);
 }
-.screen-list[hidden] { display: none; }
 
 /* On a wide screen a full-bleed list looks like an unfinished spreadsheet.
    Keep it to a phone-ish column and frame it. */
@@ -336,7 +340,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   font-variant-numeric: tabular-nums;
   padding: .1rem .45rem;
 }
-.item-amount[hidden] { display: none; }
 .item.done .item-name { color: var(--muted); opacity: .7; text-decoration: line-through; }
 
 .item-delete {
@@ -373,7 +376,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   padding-right: calc(1rem + env(safe-area-inset-right, 0px));
   scrollbar-width: none;
 }
-.suggestions[hidden] { display: none; }
 .suggestions::-webkit-scrollbar { display: none; }
 
 .suggestion {
@@ -461,7 +463,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   position: fixed;
   z-index: 10;
 }
-.sheet-backdrop[hidden] { display: none; }
 .sheet-backdrop:not([hidden]) { animation: fade-in var(--speed) ease-out; }
 .sheet-backdrop:not([hidden]) .sheet { animation: sheet-up var(--speed) ease-out; }
 
@@ -545,7 +546,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   gap: .6rem;
   margin-top: 1rem;
 }
-.field-check[hidden] { display: none; }
 .field-check input { flex: none; height: 20px; margin: 0; width: 20px; }
 
 /* ---------- toast ---------- */
@@ -567,7 +567,6 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   z-index: 20;
 }
 .toast:not([hidden]) { animation: slide-in var(--speed) ease-out; }
-.toast[hidden] { display: none; }
 
 .toast-action {
   background: none;
@@ -580,4 +579,3 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   padding: .25rem .5rem;
   text-decoration: underline;
 }
-.toast-action[hidden] { display: none; }
