@@ -423,6 +423,12 @@ function openList(listId) {
 
   state.unsubscribeItems = onSnapshot(
     collection(db, 'lists', listId, 'items'),
+    // Without includeMetadataChanges a write that only the server acknowledges
+    // never produces another snapshot — and confirming a write is exactly that.
+    // Rows checked off would keep the "pending" dimming forever, since flipping
+    // `done` changes no data on the way back. Adding an item hid the problem:
+    // there the server also resolves createdAt, which is a real data change.
+    { includeMetadataChanges: true },
     (snap) => {
       state.items = snap.docs.map((d) => ({
         id: d.id,
