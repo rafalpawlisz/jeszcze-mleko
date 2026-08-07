@@ -209,6 +209,7 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .btn-count {
   align-items: center;
   display: inline-flex;
+  min-height: 44px;
   font-size: .95rem;
   font-variant-numeric: tabular-nums;
   gap: .3rem;
@@ -340,7 +341,11 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   font-variant-numeric: tabular-nums;
   padding: .1rem .45rem;
 }
-.item.done .item-name { color: var(--muted); opacity: .7; text-decoration: line-through; }
+/* No extra opacity on top of the muted colour: together they dropped the
+   contrast to 3.86, under the 4.5 needed to read text, and a bought item is
+   still worth reading — you check it to be sure you got it. The muted colour and
+   the strike-through already say "done" on their own, at 6.41. */
+.item.done .item-name { color: var(--muted); text-decoration: line-through; }
 
 .item-delete {
   background: none;
@@ -379,6 +384,9 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .suggestions::-webkit-scrollbar { display: none; }
 
 .suggestion {
+  /* 44px is the smallest comfortable touch target, and this one is tapped over
+     and over while adding items, one-handed. */
+  min-height: 44px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
