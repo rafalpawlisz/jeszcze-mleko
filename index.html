@@ -158,6 +158,19 @@
       </select>
     </label>
 
+    <!-- Goes to a create-only collection: no uid, no list id, nothing that ties
+         a message to a person or a household. Hence the note under the field. -->
+    <label class="field field-stacked">
+      <span class="muted" data-i18n="settings.feedback">Feedback</span>
+      <textarea id="input-feedback" class="input" rows="3" maxlength="1000"
+                placeholder="What is missing, what is wrong?"
+                data-i18n-placeholder="settings.feedbackPlaceholder"></textarea>
+    </label>
+    <div class="feedback-actions">
+      <span class="muted feedback-note" data-i18n="settings.feedbackNote">Sent anonymously.</span>
+      <button id="btn-send-feedback" class="btn" data-i18n="settings.feedbackSend">Send</button>
+    </div>
+
     <div class="sheet-actions">
       <button id="btn-leave" class="btn btn-danger" data-i18n="settings.leave">Leave list</button>
       <button id="btn-close-settings" class="btn" data-i18n="settings.close">Close</button>

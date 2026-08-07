@@ -492,6 +492,22 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 .field > span { flex: none; font-size: .85rem; }
 .field select { flex: 1; }
 
+.field-stacked { align-items: stretch; flex-direction: column; gap: .4rem; }
+.field-stacked textarea {
+  font: inherit;
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.feedback-actions {
+  align-items: center;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+  margin-top: .5rem;
+}
+.feedback-note { font-size: .8rem; }
+
 .sheet-actions { display: flex; gap: .5rem; justify-content: space-between; margin-top: 1.25rem; }
 
 /* ---------- dialog ---------- */

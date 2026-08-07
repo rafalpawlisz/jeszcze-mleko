@@ -100,6 +100,23 @@ service cloud.firestore {
       }
     }
 
+    // Messages sent from the settings panel. Same shape as `unmatched`:
+    // create-only from the client, so one user cannot read, edit or delete
+    // another's, and no uid or list id is stored. Read it in the Firebase
+    // console — nothing notifies you.
+    match /feedback/{id} {
+      allow read, update, delete: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['message', 'locale', 'createdAt'])
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 1000
+        && request.resource.data.locale is string
+        && request.resource.data.locale.size() <= 5
+        && request.resource.data.createdAt is timestamp;
+    }
+
     // Names that matched no department, so the dictionary can be improved.
     //
     // Write-only from the client, deliberately: item names can be personal, and

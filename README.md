@@ -104,6 +104,7 @@ lists/{listId}              code, members: { uid: true }, createdAt, name?
 lists/{listId}/items/{id}   name, dept, done, createdAt, amount?
 codes/{CODE}                listId
 unmatched/{name}            name, count, lastSeen
+feedback/{id}               message, locale, createdAt
 ```
 
 **Joining.** `codes` is a separate collection because someone joining cannot read
@@ -154,6 +155,11 @@ banner appears on iOS.
 **Whoever knows the code has access.** Codes do not expire and there is no member
 management. Leaving a list removes you from `members`; the last member out is
 offered deletion of the list, its items and its code.
+
+**Feedback goes to the database, not to an inbox.** The settings panel has a box
+that writes to `feedback` — create-only, so nobody can read, edit or delete
+anybody else's, and no uid or list id is attached. Nothing notifies you: read it
+in the Firebase console.
 
 **Uncategorised names are collected** into `unmatched`, so the dictionary can be
 improved from real usage rather than guesswork. Only the name and a count — no

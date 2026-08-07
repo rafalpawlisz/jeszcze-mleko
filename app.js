@@ -122,6 +122,8 @@ const el = {
   btnLeave: $('btn-leave'),
   btnCloseSettings: $('btn-close-settings'),
   selectLanguage: $('select-language'),
+  inputFeedback: $('input-feedback'),
+  btnSendFeedback: $('btn-send-feedback'),
   dialogExtra: $('dialog-extra'),
   dialogCheckbox: $('dialog-checkbox'),
   dialogCheckboxLabel: $('dialog-checkbox-label'),
@@ -912,6 +914,31 @@ function clearSuggestions() {
   el.suggestions.replaceChildren();
 }
 
+// Sent to a create-only collection, so nobody can read, edit or delete anybody
+// else's. The locale rides along because it says which wording the person was
+// actually looking at; nothing else is attached, which is what the note under
+// the field promises.
+async function sendFeedback() {
+  const message = el.inputFeedback.value.trim().slice(0, 1000);
+  if (!message) return;
+
+  el.btnSendFeedback.disabled = true;
+  try {
+    await addDoc(collection(db, 'feedback'), {
+      message,
+      locale: getLocale(),
+      createdAt: serverTimestamp(),
+    });
+    el.inputFeedback.value = '';
+    toast(t('settings.feedbackSent'));
+  } catch (error) {
+    console.error('Could not send feedback', error);
+    toast(describeError(error));
+  } finally {
+    el.btnSendFeedback.disabled = false;
+  }
+}
+
 // Changing the language re-translates the markup and re-renders the list, since
 // department headings and the sort order both depend on it.
 function changeLanguage(preference) {
@@ -1006,6 +1033,7 @@ el.btnSettings.addEventListener('click', openSettings);
 el.btnCloseSettings.addEventListener('click', closeSettings);
 el.btnCopyCode.addEventListener('click', copyCode);
 el.inputListName.addEventListener('change', renameList); // fires on blur and on Enter
+el.btnSendFeedback.addEventListener('click', sendFeedback);
 el.btnLeave.addEventListener('click', leaveList);
 el.selectLanguage.addEventListener('change', () => changeLanguage(el.selectLanguage.value));
 
