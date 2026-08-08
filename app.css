@@ -322,12 +322,16 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   width: 1.5rem;
 }
 
+/* Wraps instead of truncating. At 375px the name gets 223px — about 28 characters
+   — while the field accepts 80, so an ellipsis could hide more of a name than it
+   showed, with no way to reach the rest: there is no hover on a phone, and tapping
+   the row checks the item off. Rows stop being an even height; reading what you
+   are buying is worth more than that. `anywhere` also breaks a name typed as one
+   long unbroken word, which would otherwise push the row wider than the screen. */
 .item-name {
-  min-width: 0; /* without this a flex child refuses to shrink and ellipsis never kicks in */
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0; /* a flex child otherwise refuses to shrink below its content */
+  overflow-wrap: anywhere;
   transition: color var(--speed), opacity var(--speed);
-  white-space: nowrap;
 }
 
 /* Only rendered when there is something to say — "mleko 1, chleb 1, masło 1"
