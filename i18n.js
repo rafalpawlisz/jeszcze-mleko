@@ -35,6 +35,7 @@ const STRINGS = {
     'list.amountLabel': 'Amount',
     'list.suggestions': 'Suggestions',
     'list.gone': 'This list no longer exists.',
+    'list.notLoaded': 'The list is still loading — try again in a moment.',
     'list.bought': 'Bought',
     'list.clearDoneCount': 'Clear bought ({count})',
 
@@ -125,6 +126,7 @@ const STRINGS = {
     'list.amountLabel': 'Ilość',
     'list.suggestions': 'Podpowiedzi',
     'list.gone': 'Lista już nie istnieje.',
+    'list.notLoaded': 'Lista jeszcze się wczytuje — spróbuj za chwilę.',
     'list.bought': 'Kupione',
     'list.clearDoneCount': 'Wyczyść kupione ({count})',
 

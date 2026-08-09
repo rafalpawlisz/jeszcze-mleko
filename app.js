@@ -15,6 +15,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   addDoc,
   updateDoc,
@@ -79,8 +80,11 @@ const db = initializeFirestore(app, {
 // ============================================================================
 
 const STORAGE_KEY = 'jeszcze-mleko:listId';
-const NAME_MAX = 60;      // both mirrored in firestore.rules and in the field's
-const FEEDBACK_MAX = 1000; // maxlength, neither of which can import anything
+const NAME_MAX = 60;       // list name
+const ITEM_NAME_MAX = 80;  // item name
+const FEEDBACK_MAX = 1000; // feedback message
+// Each is mirrored in firestore.rules and in the field's maxlength, neither of
+// which can import anything from here.
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L — nothing to misread
 const CODE_LENGTH = 6;
 
@@ -328,9 +332,18 @@ async function joinList(rawCode) {
 }
 
 async function leaveList() {
+  // The members map is what decides whether tidying up is safe to offer, so the
+  // list document has to have arrived first. Until it does, `members` is empty,
+  // which reads as "you are the only one here" — and the list screen is shown
+  // the instant openList runs, so settings are reachable inside that window.
+  if (!state.list) {
+    toast(t('list.notLoaded'));
+    return;
+  }
+
   // Offering to delete everything is only safe for the last member — otherwise
   // "tidying up after myself" would wipe the list somebody else is shopping from.
-  const isLastMember = Object.keys(state.list?.members ?? {}).length <= 1;
+  const isLastMember = Object.keys(state.list.members ?? {}).length <= 1;
 
   const { confirmed, checked } = await confirmDialog({
     title: t('settings.leaveTitle'),
@@ -343,8 +356,7 @@ async function leaveList() {
   // Captured before detaching, which clears them.
   const listId = state.listId;
   const uid = state.uid;
-  const code = state.list?.code;
-  const items = state.items;
+  const code = state.list.code;
 
   // Detach first. The moment we stop being a member the list listener would fail
   // with permission-denied and announce lost access, which is not what happened.
@@ -352,7 +364,7 @@ async function leaveList() {
 
   try {
     if (isLastMember && checked) {
-      await deleteList(listId, code, items);
+      await deleteList(listId, code);
       toast(t('settings.deleted'));
     } else {
       await updateDoc(doc(db, 'lists', listId), { [`members.${uid}`]: deleteField() });
@@ -369,9 +381,15 @@ async function leaveList() {
 
 // Order matters. The rule guarding the code checks membership on the list, so the
 // list document has to still exist at that point — items, then code, then list.
-async function deleteList(listId, code, items) {
+//
+// The items are read here rather than taken from the last snapshot. Firestore does
+// not cascade a delete, and once the list document is gone no rule can grant
+// access to its subcollection again: a document this misses is orphaned for good,
+// invisible to everyone and deletable by nobody.
+async function deleteList(listId, code) {
   const itemsRef = collection(db, 'lists', listId, 'items');
-  await inBatches(items, (batch, item) => batch.delete(doc(itemsRef, item.id)));
+  const snap = await getDocs(itemsRef);
+  await inBatches(snap.docs, (batch, item) => batch.delete(item.ref));
   if (code) await deleteDoc(doc(db, 'codes', code));
   await deleteDoc(doc(db, 'lists', listId));
 }
@@ -703,7 +721,11 @@ async function addItem(rawName, rawAmount) {
   const typed = amountFrom(rawAmount).amount;
   const split = typed ? { name: rawName, amount: '' } : splitAmount(rawName);
 
-  const name = split.name.trim().replace(/\s+/g, ' ');
+  // Capped here as well as in the field: the same trim-after-slice as everywhere
+  // else, so a cut landing on a space cannot be stored. Nothing reaches this with
+  // more than 80 characters today, but a name that did would be refused by the
+  // rules and surface as a bare permission error.
+  const name = split.name.trim().replace(/\s+/g, ' ').slice(0, ITEM_NAME_MAX).trim();
   if (!name || !state.listId) return;
 
   // The split name is what goes into history, so "szynka 50 dag" and

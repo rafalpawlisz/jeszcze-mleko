@@ -89,6 +89,10 @@ service cloud.firestore {
             && request.resource.data.dept is string
             && request.resource.data.dept.size() <= 30
             && request.resource.data.done is bool
+            // Checked like the timestamps on feedback and unmatched. On an update
+            // request.resource.data is the merged document, so the value carried
+            // over from the stored one satisfies this without being resent.
+            && request.resource.data.createdAt is timestamp
             && (!('amount' in request.resource.data) || (
                  request.resource.data.amount is string
                  && request.resource.data.amount.size() > 0

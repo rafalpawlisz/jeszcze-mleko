@@ -387,6 +387,11 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
 }
 .suggestions::-webkit-scrollbar { display: none; }
 
+/* Not width-capped, and so never cut off. Matching is by word prefix, which puts
+   what the names have in common at the front and what tells them apart at the
+   end — exactly where an ellipsis would fall, leaving "…trzywarstwowy biały" and
+   "…trzywarstwowy szary" looking identical. The strip scrolls horizontally, so a
+   long chip costs a swipe rather than the text. nowrap keeps a chip a pill. */
 .suggestion {
   /* 44px is the smallest comfortable touch target, and this one is tapped over
      and over while adding items, one-handed. */
@@ -399,10 +404,7 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   flex: none;
   font: inherit;
   font-size: .9rem;
-  max-width: 60vw;
-  overflow: hidden;
   padding: .4rem .85rem;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .suggestion:active { opacity: .65; }
