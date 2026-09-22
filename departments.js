@@ -40,6 +40,10 @@ export function departmentInfo(id) {
 const DOMINANT_KEYWORDS = {
   mrozonki: ['mrozon', 'frozen'],
   napoje: ['sok', 'juice', 'nektar', 'nectar'],
+  // The noun names the aisle, so a longer qualifier must not take it over:
+  // "patera na ciasto" is a platter, not a cake, and "patelnia do pieczenia"
+  // is a pan even though "pieczen" is the longer stem in the name.
+  dom: ['pater', 'pateln'],
 };
 
 // The dictionary holds STEMS, not full forms — one entry covers the whole
@@ -49,6 +53,11 @@ const DOMINANT_KEYWORDS = {
 // An entry without a space matches as a word PREFIX (not an arbitrary
 // substring), so "por" does not match inside "pomidora". An entry with a space
 // matches anywhere in the full name ("papier toaletowy").
+//
+// A prefix is what Polish inflection needs, but it is dangerous for a short
+// English word: "pate" reached patera, patelnia and patent, which is how a
+// platter was filed under mięso. A leading '=' marks a stem as the WHOLE WORD
+// only — '=pate' still covers English "pate" and leaves the rest alone.
 //
 // When several entries match, the longest stem wins — that is how "masło
 // orzechowe" beats "masło" and "peanut butter" beats "butter".
@@ -114,8 +123,8 @@ const KEYWORDS = {
     'golonk', 'watrobk', 'watrob', 'kaszank', 'salceson', 'pieczen',
     'mortadel', 'udk', 'skrzydelk', 'kotlet', 'gyros', 'bekon',
     // en
-    'meat', 'beef', 'pork', 'chicken', 'turkey', 'bacon', 'sausage', 'ham',
-    'steak', 'mince', 'ground beef', 'ribs', 'cutlet', 'drumstick', 'pate',
+    'meat', 'beef', 'pork', 'chicken', 'turkey', 'bacon', 'sausage', '=ham',
+    'steak', 'mince', 'ground beef', 'ribs', 'cutlet', 'drumstick', '=pate',
     'prosciutto', 'meatball', 'lamb', 'veal', 'chorizo', 'pepperoni',
   ],
   ryby: [
@@ -174,9 +183,11 @@ const KEYWORDS = {
     'czekolad', 'cukierk', 'batonik', 'baton', 'ciastk', 'herbatnik', 'wafel',
     'wafl', 'chips', 'paluszk', 'orzech', 'orzeszk', 'migdal', 'nerkowc',
     'pistacj', 'rodzynk', 'zelk', 'lizak', 'ciasto', 'keks', 'piernik',
+    // Longer than the "krem" that means hand cream, which would win otherwise.
+    'kremowk',
     'popcorn', 'krakers', 'prazynk', 'maslo orzechowe', 'nutell', 'dzem',
     'powidl', 'marmolad', 'miod', 'syrop klonowy', 'guma do zucia',
-    'ptasie mleczko', 'sernik', 'oreo', 'delicj', 'praliny', 'krowk',
+    'ptasie mleczko', 'sernik', 'napoleonk', 'oreo', 'delicj', 'praliny', 'krowk',
     'nachos', 'suszone owoce',
     // en
     'chocolate', 'candy', 'sweets', 'biscuit', 'cookie', 'cracker', 'wafer',
@@ -202,9 +213,9 @@ const KEYWORDS = {
     // pl
     'piw', 'win', 'wodk', 'likier', 'nalewk', 'cydr', 'szampan', 'koniak',
     // en
-    'beer', 'wine', 'vodka', 'whisky', 'whiskey', 'rum', 'gin', 'liqueur',
+    'beer', 'wine', 'vodka', 'whisky', 'whiskey', '=rum', '=gin', 'liqueur',
     'cider', 'prosecco', 'champagne', 'tequila', 'cognac', 'brandy',
-    'bourbon', 'ale', 'lager', 'aperol', 'martini', 'vermouth', 'jagermeister',
+    'bourbon', '=ale', 'lager', 'aperol', 'martini', 'vermouth', 'jagermeister',
   ],
   chemia: [
     // pl
@@ -251,6 +262,7 @@ const KEYWORDS = {
     'bateri', 'zarowk', 'swieczk', 'swiec', 'zapalk', 'folia', 'folia aluminiowa',
     'papier do pieczenia', 'karma', 'zwirek', 'kuweta', 'smycz', 'obroza',
     'serwetk', 'slomk', 'sztucce', 'kubki jednorazowe', 'talerzyki',
+    'pater', 'pateln',
     'worki na smieci', 'worki', 'torebki sniadaniowe', 'papier sniadaniowy',
     'sandwich bag', 'doniczk', 'nawoz',
     'kwiat', 'znicz', 'sznurek', 'tasma', 'klej', 'dlugopis', 'zeszyt',
@@ -316,7 +328,7 @@ const EMOJI = {
          'steak', 'miel', 'mince', 'kotlet', 'lamb', 'veal'],
   '🍗': ['kurczak', 'kurcze', 'indyk', 'chicken', 'turkey', 'udk', 'skrzydelk',
          'drumstick', 'filet'],
-  '🥓': ['boczek', 'boczk', 'bacon', 'szynk', 'ham', 'prosciutto', 'pasztet', 'pate'],
+  '🥓': ['boczek', 'boczk', 'bacon', 'szynk', '=ham', 'prosciutto', 'pasztet', '=pate'],
   '🌭': ['parowk', 'kielbas', 'kabanos', 'sausage', 'salami', 'chorizo', 'pepperoni',
          'hot dog'],
   '🐟': ['ryb', 'losos', 'sledz', 'dorsz', 'makrel', 'mintaj', 'pstrag', 'tunczyk',
@@ -344,7 +356,8 @@ const EMOJI = {
          'toffee', 'guma do zucia', 'chewing gum'],
   '🍪': ['ciastk', 'herbatnik', 'biscuit', 'cookie', 'krakers', 'cracker', 'wafel',
          'wafl', 'wafer', 'waffle', 'piernik', 'oreo', 'delicj'],
-  '🍰': ['ciasto', 'cake', 'sernik', 'keks', 'brownie', 'muffin'],
+  '🍰': ['ciasto', 'cake', 'sernik', 'keks', 'brownie', 'muffin', 'kremowk',
+         'napoleonk'],
   '🥜': ['orzech', 'orzeszk', 'nut', 'migdal', 'almond', 'nerkowc', 'cashew',
          'pistacj', 'pistachio', 'walnut', 'hazelnut', 'maslo orzechowe',
          'peanut butter', 'slonecznik', 'pestki', 'sezam', 'chia', 'siemie'],
@@ -356,9 +369,9 @@ const EMOJI = {
          'energet', 'energy drink', 'red bull', 'monster'],
   '☕': ['kaw', 'coffee'],
   '🍵': ['herbat', 'tea', 'rumianek', 'miet', 'matcha'],
-  '🍺': ['piw', 'beer', 'cydr', 'cider', 'ale', 'lager'],
+  '🍺': ['piw', 'beer', 'cydr', 'cider', '=ale', 'lager'],
   '🍷': ['win', 'wine', 'prosecco', 'szampan', 'champagne'],
-  '🥃': ['wodk', 'vodka', 'whisky', 'whiskey', 'rum', 'gin', 'likier', 'liqueur',
+  '🥃': ['wodk', 'vodka', 'whisky', 'whiskey', '=rum', '=gin', 'likier', 'liqueur',
          'koniak', 'cognac', 'brandy', 'bourbon', 'tequil', 'nalewk'],
   '🧻': ['papier toaletowy', 'toilet paper', 'toilet roll', 'reczniki papierowe',
          'paper towel', 'kitchen roll', 'chusteczk', 'tissue', 'serwetk', 'napkin'],
@@ -401,8 +414,15 @@ const EMOJI = {
 // longest-wins rule, different answer. Hence "value" rather than "dept".
 function compile(source) {
   return Object.entries(source)
-    .flatMap(([value, stems]) => stems.map((stem) => ({ stem, value })))
+    .flatMap(([value, stems]) => stems.map((raw) => ({ ...parseStem(raw), value })))
     .sort((a, b) => b.stem.length - a.stem.length);
+}
+
+// The '=' is stripped before measuring, so a whole-word stem competes for the
+// longest match on the letters it actually carries.
+function parseStem(raw) {
+  const whole = raw.startsWith('=');
+  return { stem: whole ? raw.slice(1) : raw, whole };
 }
 
 const DOMINANT_RULES = compile(DOMINANT_KEYWORDS);
@@ -410,7 +430,12 @@ const RULES = compile(KEYWORDS);
 // Same problem as the departments have: "jablk" is longer than "sok", so apple
 // juice would come out as an apple. The drink is the noun here; in "frozen peas"
 // the peas are, which is why frozen is deliberately not on this list.
-const EMOJI_DOMINANT = compile({ '🧃': ['sok', 'juice', 'nektar', 'nectar'] });
+const EMOJI_DOMINANT = compile({
+  '🧃': ['sok', 'juice', 'nektar', 'nectar'],
+  // The cake a platter will carry is not the product, and there is no picture
+  // of a platter — nothing is the honest answer, as with an unmatched name.
+  '': ['pater', 'pateln'],
+});
 const EMOJI_RULES = compile(EMOJI);
 
 // Reduces a name to a comparable form: lowercase, no Polish diacritics, no
@@ -426,12 +451,15 @@ export function normalize(text) {
     .trim();
 }
 
+function stemMatches({ stem, whole }, normalized, words) {
+  if (whole) return words.includes(stem);
+  if (stem.includes(' ')) return normalized.includes(stem);
+  return words.some((word) => word.startsWith(stem));
+}
+
 function firstMatch(rules, normalized, words) {
-  for (const { stem, value } of rules) {
-    const hit = stem.includes(' ')
-      ? normalized.includes(stem)
-      : words.some((word) => word.startsWith(stem));
-    if (hit) return value;
+  for (const rule of rules) {
+    if (stemMatches(rule, normalized, words)) return rule.value;
   }
   return null;
 }

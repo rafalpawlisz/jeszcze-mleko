@@ -118,10 +118,12 @@ own** key in `members`, so no one can lock anybody else out.
 
 **Departments.** [`departments.js`](departments.js) holds word *stems* rather than
 full forms, matched as word prefixes, longest match winning — plus a short list of
-words that override that outright, so "frozen strawberries" is not produce. Polish
-and English stems sit together, so one shared list works whichever language people
-type in. The department is written onto the item as it is added, so changing the
-dictionary never reshuffles a list mid-shop.
+words that override that outright, so "frozen strawberries" is not produce. A stem
+written with a leading `=` matches only the whole word: English "pate" needed that
+so it would stop claiming *patera*. Polish and English stems sit together, so one
+shared list works whichever language people type in. The department is written
+onto the item as it is added, so changing the dictionary never reshuffles a list
+mid-shop.
 
 **One row per product.** Typing something already on the list does not add a
 second row — the existing one is highlighted and scrolled to. If it had been

@@ -67,6 +67,7 @@ section('departments — longest stem wins');
   ['boczek', 'mieso'], ['boczniak', 'warzywa'],
   ['kurczak', 'mieso'], ['kurki', 'warzywa'], ['kurkuma', 'sypkie'],
   ['makaron', 'sypkie'], ['pasta', 'sypkie'], ['pasta do zębów', 'chemia'],
+  ['krem', 'chemia'], ['kremówka', 'slodycze'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
 section('departments — dominant words beat the longest stem');
@@ -77,6 +78,9 @@ section('departments — dominant words beat the longest stem');
   ['frozen peas', 'mrozonki'],
   ['sok jabłkowy', 'napoje'], ['sok z czarnej porzeczki', 'napoje'],
   ['orange juice', 'napoje'],
+  // Here it is the noun that has to win over a longer qualifier.
+  ['patera na ciasto', 'dom'], ['patera na owoce', 'dom'],
+  ['patelnia do pieczenia', 'dom'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
 section('departments — health');
@@ -101,6 +105,19 @@ section('departments — gaps found by probing real shopping words');
   // "do golenia" covers the razor, the foam and the gel at once.
   ['maszynka do golenia', 'chemia'], ['pianka do golenia', 'chemia'],
   ['żel do golenia', 'chemia'],
+  // The other name for a kremówka, which the dictionary knew only as "ciasto".
+  ['napoleonka', 'slodycze'], ['napoleonki', 'slodycze'],
+].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
+
+section('departments — a whole word does not swallow a longer one');
+[
+  // "pate" as a prefix is what filed a platter under mięso: patera, patelnia
+  // and patent all start with the same four letters.
+  ['pate', 'mieso'], ['patera', 'dom'], ['patery', 'dom'], ['patelnia', 'dom'],
+  ['ham', 'mieso'], ['hamak', 'inne'], ['hamulec', 'inne'],
+  ['gin', 'alkohole'], ['ginekolog', 'inne'],
+  ['ale', 'alkohole'], ['alergia', 'inne'],
+  ['rum', 'alkohole'], ['rumianek', 'napoje'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
 section('emoji — the product, not the category');
@@ -114,6 +131,12 @@ section('emoji — the product, not the category');
   ['sok jabłkowy', '🧃'], ['sok', '🧃'],
   // Same collision as the departments had, in the parallel dictionary.
   ['pasta do zębów', '🪥'], ['makaron', '🍝'],
+  // A platter is not a slice of ham, and "pate" must still be one.
+  ['pate', '🥓'], ['patera', ''],
+  // The cake is what it carries, not what it is.
+  ['kremówka', '🍰'], ['napoleonka', '🍰'], ['patera na ciasto', ''],
+  // A name that is emphatically not the cream it is made of.
+  ['krem', '🧴'],
   // Nothing rather than a wrong guess; the row reserves the space anyway.
   ['wihajster', ''], ['', ''],
 ].forEach(([name, want]) => check(`  ${name || "(puste)"}`, emojiFor(name), want));
