@@ -437,6 +437,12 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: none; }
 }
+/* Animates `translate`, not `transform`: the toast centres itself with
+   transform: translateX(-50%), and a running transform animation would replace it. */
+@keyframes toast-in {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: 0 0; }
+}
 @keyframes pop {
   50% { transform: scale(1.25); }
 }
@@ -574,13 +580,28 @@ h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
   font-size: .9rem;
   gap: .75rem;
   left: 50%;
-  max-width: calc(100vw - 2rem);
+  /* 480px is the sheet's cap; without it a long name stretches the pill across
+     most of a desktop screen, which reads as a banner rather than a nudge. */
+  max-width: min(480px, calc(100vw - 2rem));
   padding: .65rem .75rem .65rem 1rem;
   position: fixed;
   transform: translateX(-50%);
+  /* Without this the shrink-to-fit width is measured from `left: 50%` to the right
+     edge, so a long name would get half the screen instead of the whole width. */
+  width: max-content;
   z-index: 20;
 }
-.toast:not([hidden]) { animation: slide-in var(--speed) ease-out; }
+.toast:not([hidden]) { animation: toast-in var(--speed) ease-out; }
+
+/* One line, cut with an ellipsis — a name typed as one unbroken word otherwise
+   turns the pill into a tall column. The full name still reaches a screen reader.
+   min-width: 0 — a flex child otherwise refuses to shrink below its content. */
+.toast-message {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .toast-action {
   background: none;

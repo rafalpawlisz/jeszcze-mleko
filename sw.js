@@ -2,7 +2,7 @@
 //
 // IMPORTANT: bump CACHE_VERSION after every change to the app files, otherwise
 // users keep getting the old version.
-const CACHE_VERSION = 'v41';
+const CACHE_VERSION = 'v42';
 const CACHE_NAME = `jeszcze-mleko-${CACHE_VERSION}`;
 
 // On localhost cache-first would be a trap: after every edit the browser would
