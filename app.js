@@ -1018,15 +1018,76 @@ el.inputCode.addEventListener('input', () => {
   el.inputCode.value = el.inputCode.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
 
-el.formAdd.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const value = el.inputItem.value;
+// Taps on the composer or the suggestion strip have to survive the keyboard.
+//
+// iOS discards the click of a tap whose layout moved mid-gesture, and dismissing
+// the keyboard moves exactly that: --keyboard falls to 0, the composer and the
+// suggestions above it slide down out from under the finger, and the click is
+// thrown away as a mis-tap. That is why the first tap on + only closed the
+// keyboard and the second one added the item. Touch events are not subject to
+// that check, and a touchend is delivered to the node the touch began on however
+// far that node has travelled since, so the action is taken from there instead.
+// Cancelling the touchend also suppresses the mousedown that would have moved
+// focus out of the field: the keyboard stays up and nothing moves at all.
+//
+// A second path, not a replacement: without touch — a mouse, a keyboard — none
+// of this fires and the click handlers below do the work on their own.
+const TAP_SLOP = 10; // px of finger travel still counted as a tap, not a scroll
+const TAP_ECHO_MS = 600; // a click this soon after a tap is the one it cancelled
+
+let tapHandledAt = -Infinity;
+const isTapEcho = (event) => event.timeStamp - tapHandledAt < TAP_ECHO_MS;
+
+function takeTaps(container, selector, run) {
+  let start = null;
+
+  container.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches[0];
+    start = { id: touch.identifier, x: touch.clientX, y: touch.clientY };
+  }, { passive: true });
+
+  container.addEventListener('touchcancel', () => { start = null; });
+
+  container.addEventListener('touchend', (event) => {
+    const from = start;
+    start = null;
+    if (!from) return; // cancelled, or a touch that never started here
+
+    const touch = Array.from(event.changedTouches)
+      .find((candidate) => candidate.identifier === from.id);
+    if (!touch) return;
+
+    // Travel in either axis: a drag that far was meant as a scroll.
+    if (Math.abs(touch.clientX - from.x) > TAP_SLOP
+        || Math.abs(touch.clientY - from.y) > TAP_SLOP) return;
+
+    const target = event.target.closest(selector);
+    if (!target) return;
+
+    // Has to be a non-passive listener for this: cancelling the touchend is what
+    // keeps the compatibility click from arriving as a second add.
+    event.preventDefault();
+    tapHandledAt = event.timeStamp;
+    run(target);
+  }, { passive: false });
+}
+
+// Adds what the composer holds under the given name. The submit button, the
+// keyboard's Enter key and a suggestion chip all end here, so all three leave
+// the same state behind: fields empty, keyboard up, ready for the next item.
+function addFromComposer(name = el.inputItem.value) {
   const amount = el.inputAmount.value;
   el.inputItem.value = '';
   el.inputAmount.value = '';
   el.inputItem.focus(); // keeps the keyboard up — easier to add items in a row
   clearSuggestions();
-  addItem(value, amount);
+  addItem(name, amount);
+}
+
+el.formAdd.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (isTapEcho(event)) return; // that tap has had its add already
+  addFromComposer();
 });
 
 el.inputItem.addEventListener('input', renderSuggestions);
@@ -1035,16 +1096,14 @@ el.inputItem.addEventListener('input', renderSuggestions);
 // number of taps is what matters, and the department is derived from the name.
 el.suggestions.addEventListener('click', (event) => {
   const chip = event.target.closest('.suggestion');
-  if (!chip) return;
+  if (!chip || isTapEcho(event)) return;
 
   // An amount typed before reaching for a suggestion still applies to it.
-  const amount = el.inputAmount.value;
-  el.inputItem.value = '';
-  el.inputAmount.value = '';
-  el.inputItem.focus();
-  clearSuggestions();
-  addItem(chip.textContent, amount);
+  addFromComposer(chip.textContent);
 });
+
+takeTaps(el.formAdd, 'button[type="submit"]', () => addFromComposer());
+takeTaps(el.suggestions, '.suggestion', (chip) => addFromComposer(chip.textContent));
 
 // One delegated listener instead of two per row: rows are now long-lived, and
 // this way nothing has to be rebound when they are reused.
