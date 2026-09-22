@@ -22,6 +22,8 @@ export const DEPARTMENTS = [
   { id: 'chemia',    icon: '🧼' },
   { id: 'zdrowie',   icon: '💊' },
   { id: 'dom',       icon: '🏠' },
+  { id: 'odziez',    icon: '👕' },
+  { id: 'zabawki',   icon: '🧸' },
   { id: 'inne',      icon: '🛒' },
 ];
 
@@ -78,6 +80,7 @@ const KEYWORDS = {
     'natka', 'szpinak', 'rukol', 'roszponk', 'botwink', 'kalarep', 'brukselk',
     'fasolk szparagow', 'bob', 'kielki', 'imbir', 'batat', 'awokado',
     'jablk', 'gruszk', 'banan', 'pomarancz', 'mandarynk', 'cytryn', 'limonk',
+    'kumkwat',
     'winogron', 'truskawk', 'malin', 'borowk', 'jagod', 'sliwk', 'brzoskwin',
     'nektaryn', 'arbuz', 'melon', 'ananas', 'kiwi', 'granat', 'czeresn',
     'wisni', 'porzeczk', 'zurawin', 'mango', 'papaj', 'figi', 'daktyl',
@@ -91,7 +94,7 @@ const KEYWORDS = {
     'apple', 'pear', 'banana', 'orange', 'mandarin', 'tangerine', 'lemon',
     'lime', 'grape', 'strawberr', 'raspberr', 'blueberr', 'blackberr', 'plum',
     'peach', 'nectarine', 'watermelon', 'pineapple', 'pomegranate', 'cherr',
-    'cranberr', 'papaya', 'apricot', 'dates', 'melon',
+    'cranberr', 'papaya', 'apricot', 'dates', 'melon', 'kumquat',
   ],
   pieczywo: [
     // pl
@@ -229,7 +232,7 @@ const KEYWORDS = {
     'plyn do naczyn', 'plyn do prania', 'plyn do plukania', 'plyn', 'proszek do prania',
     'proszek', 'kapsulki do prania', 'wybielacz', 'odkamieniacz', 'odplamiacz',
     'gabk', 'druciak', 'sciereczk', 'odswiezacz', 'krem', 'balsam', 'golark',
-    'do golenia', 'zyletk', 'podpask', 'tampon', 'prezerwatyw',
+    'do golenia', 'zyletk', 'podpask', 'tampon', 'prezerwatyw', 'kondom',
     'wacik', 'zmywak', 'condom', 'shaving',
     'wkladki', 'pieluch', 'mokre chusteczki', 'domestos', 'ludwik', 'cif',
     'mydelko', 'plyn do szyb', 'wc', 'kostka do wc', 'tabletki do zmywarki',
@@ -262,6 +265,11 @@ const KEYWORDS = {
     'bateri', 'zarowk', 'swieczk', 'swiec', 'zapalk', 'folia', 'folia aluminiowa',
     'papier do pieczenia', 'karma', 'zwirek', 'kuweta', 'smycz', 'obroza',
     'serwetk', 'slomk', 'sztucce', 'kubki jednorazowe', 'talerzyki',
+    // Tableware and textiles. 'kubek' needs both forms, as with 'ogorek' /
+    // 'ogork': the singular has an e the plural does not. The cloth 'recznik'
+    // belongs here too; the paper one spells the same word, but its longer stem
+    // takes it back to chemia.
+    'kubek', 'kubk', 'posciel', 'recznik',
     'pater', 'pateln',
     'worki na smieci', 'worki', 'torebki sniadaniowe', 'papier sniadaniowy',
     'sandwich bag', 'doniczk', 'nawoz',
@@ -273,6 +281,25 @@ const KEYWORDS = {
     'pet food', 'dog food', 'cat food', 'litter', 'leash', 'collar', 'napkin',
     'straw', 'cutlery', 'paper plate', 'bin bag', 'trash bag', 'garbage bag',
     'flower', 'plant pot', 'fertilizer', 'lighter', 'notebook', 'tape', 'glue',
+    'mug', 'bedding', 'towel',
+  ],
+  // Clothes and toys are not groceries in any sense, so they get their own
+  // sections rather than being stretched into Home — the same reasoning that
+  // gave zdrowie its own department. An empty section is not rendered, so the
+  // two cost nothing on a shop that has neither.
+  odziez: [
+    // pl
+    'koszul', 'spodn', 'plaszcz',
+    // en
+    'shirt', 'trousers', '=pants', 'coat', 'jacket',
+  ],
+  zabawki: [
+    // pl
+    'lalk', 'zabawk', 'klocki lego',
+    // '=lego' as the whole word only: "legowisko" is a dog bed, not a toy.
+    '=lego',
+    // en
+    'toy', 'doll',
   ],
 };
 
@@ -296,7 +323,7 @@ const EMOJI = {
   '🥨': ['precel', 'pretzel', 'obwarzanek', 'paluszk'],
   '🍎': ['jablk', 'apple'],
   '🍌': ['banan', 'banana'],
-  '🍊': ['pomarancz', 'mandarynk', 'orange', 'tangerine'],
+  '🍊': ['pomarancz', 'mandarynk', 'orange', 'tangerine', 'kumkwat', 'kumquat'],
   '🍋': ['cytryn', 'limonk', 'lemon', 'lime'],
   '🍇': ['winogron', 'grape', 'porzeczk', 'rodzynk', 'raisin'],
   '🍓': ['truskawk', 'strawberr', 'malin', 'raspberr'],
@@ -374,7 +401,8 @@ const EMOJI = {
   '🥃': ['wodk', 'vodka', 'whisky', 'whiskey', '=rum', '=gin', 'likier', 'liqueur',
          'koniak', 'cognac', 'brandy', 'bourbon', 'tequil', 'nalewk'],
   '🧻': ['papier toaletowy', 'toilet paper', 'toilet roll', 'reczniki papierowe',
-         'paper towel', 'kitchen roll', 'chusteczk', 'tissue', 'serwetk', 'napkin'],
+         'recznik papierowy', 'paper towel', 'kitchen roll', 'chusteczk', 'tissue',
+         'serwetk', 'napkin'],
   '🧼': ['mydl', 'soap', 'plyn do naczyn', 'dish soap', 'washing up liquid'],
   '🧴': ['szampon', 'shampoo', 'odzywk', 'conditioner', 'zel', 'balsam', 'lotion',
          'krem', 'cream', 'plyn', 'dezodorant', 'deodorant', 'antyperspirant',
@@ -388,7 +416,7 @@ const EMOJI = {
          'plyn do plukania', 'fabric softener', 'wybielacz', 'bleach'],
   '🪒': ['do golenia', 'golark', 'zyletk', 'razor', 'shaving'],
   '🧷': ['podpask', 'tampon', 'pieluch', 'diaper', 'nappy', 'wkladki', 'sanitary pad',
-         'prezerwatyw', 'condom'],
+         'prezerwatyw', 'kondom', 'condom'],
   '💊': ['suplement', 'supplement', 'witamin', 'vitamin', 'magnez', 'magnesium',
          'elektrolit', 'electrolyte', 'kolagen', 'collagen', 'probiotyk', 'probiotic',
          'tabletki', 'paracetamol', 'ibuprofen', 'apap', 'cynk', 'zinc', 'omega',
@@ -406,6 +434,17 @@ const EMOJI = {
   '🥥': ['kokos', 'coconut'],
   '🍠': ['sweet potato', 'burak', 'beetroot', 'rzodkiew', 'radish', 'seler', 'celery',
          'turnip'],
+  '👕': ['koszul', 'shirt'],
+  '👖': ['spodn', 'trousers', '=pants'],
+  '🧥': ['plaszcz', 'coat', 'jacket'],
+  // A doll gets the bear rather than nothing: both are toys, and the set has no
+  // doll of its own.
+  '🧸': ['lalk', 'doll', 'zabawk', 'toy'],
+  '🧱': ['=lego', 'klocki lego'],
+  '🛏': ['posciel', 'bedding'],
+  // A bathtub for the cloth towel; the paper one keeps its own picture, since
+  // 'recznik papierowy' is the longer stem.
+  '🛁': ['recznik', 'towel'],
 };
 
 // Flat list of [stem, department] sorted longest stem first, so the first hit

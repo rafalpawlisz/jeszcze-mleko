@@ -99,6 +99,8 @@ const STRINGS = {
     'dept.chemia': 'Household & hygiene',
     'dept.zdrowie': 'Health & supplements',
     'dept.dom': 'Home & pets',
+    'dept.odziez': 'Clothing',
+    'dept.zabawki': 'Toys',
     'dept.inne': 'Other',
   },
 
@@ -192,6 +194,8 @@ const STRINGS = {
     'dept.chemia': 'Chemia i higiena',
     'dept.zdrowie': 'Zdrowie i suplementy',
     'dept.dom': 'Dom i zwierzęta',
+    'dept.odziez': 'Odzież',
+    'dept.zabawki': 'Zabawki',
     'dept.inne': 'Inne',
   },
 };

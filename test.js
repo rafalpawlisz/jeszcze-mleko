@@ -109,6 +109,19 @@ section('departments — gaps found by probing real shopping words');
   ['napoleonka', 'slodycze'], ['napoleonki', 'slodycze'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
+section('departments — clothes, toys and other gaps');
+[
+  ['koszulka', 'odziez'], ['spodnie', 'odziez'], ['płaszcz', 'odziez'],
+  ['lalka', 'zabawki'], ['lego', 'zabawki'],
+  ['kubek', 'dom'], ['pościel', 'dom'], ['ręcznik', 'dom'],
+  ['kumkwaty', 'warzywa'], ['kondomy', 'chemia'],
+  ['t-shirt', 'odziez'], ['trousers', 'odziez'], ['toys', 'zabawki'],
+  ['towels', 'dom'], ['bedding', 'dom'],
+  // The cloth towel belongs to Home; the same word with "papierowy" is a paper
+  // towel and must stay in chemia, which works because the longer stem wins.
+  ['ręcznik kąpielowy', 'dom'], ['ręcznik papierowy', 'chemia'],
+].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
+
 section('departments — a whole word does not swallow a longer one');
 [
   // "pate" as a prefix is what filed a platter under mięso: patera, patelnia
@@ -117,6 +130,8 @@ section('departments — a whole word does not swallow a longer one');
   ['ham', 'mieso'], ['hamak', 'inne'], ['hamulec', 'inne'],
   ['gin', 'alkohole'], ['ginekolog', 'inne'],
   ['ale', 'alkohole'], ['alergia', 'inne'],
+  // A bare "lego" prefix would claim the dog bed as a toy.
+  ['lego', 'zabawki'], ['legowisko', 'inne'],
   ['rum', 'alkohole'], ['rumianek', 'napoje'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
@@ -137,6 +152,10 @@ section('emoji — the product, not the category');
   ['kremówka', '🍰'], ['napoleonka', '🍰'], ['patera na ciasto', ''],
   // A name that is emphatically not the cream it is made of.
   ['krem', '🧴'],
+  ['koszulka', '👕'], ['spodnie', '👖'], ['płaszcz', '🧥'],
+  ['lalka', '🧸'], ['lego', '🧱'], ['kumkwat', '🍊'], ['kondomy', '🧷'],
+  ['pościel', '🛏'], ['ręcznik', '🛁'],
+  ['ręcznik papierowy', '🧻'],
   // Nothing rather than a wrong guess; the row reserves the space anyway.
   ['wihajster', ''], ['', ''],
 ].forEach(([name, want]) => check(`  ${name || "(puste)"}`, emojiFor(name), want));
