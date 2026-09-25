@@ -107,6 +107,9 @@ section('departments — gaps found by probing real shopping words');
   ['żel do golenia', 'chemia'],
   // The other name for a kremówka, which the dictionary knew only as "ciasto".
   ['napoleonka', 'slodycze'], ['napoleonki', 'slodycze'],
+  // "Pizza" had no entry at all; the freezer is where a shop keeps it, which is
+  // also what the dominant "mrozon" said for the frozen one all along.
+  ['pizza', 'mrozonki'], ['pizza mrożona', 'mrozonki'], ['pizza hawaii', 'mrozonki'],
 ].forEach(([name, want]) => check(`  ${name}`, guessDepartment(name), want));
 
 section('departments — clothes, toys and other gaps');
@@ -153,6 +156,7 @@ section('emoji — the product, not the category');
   // A name that is emphatically not the cream it is made of.
   ['krem', '🧴'],
   ['koszulka', '👕'], ['spodnie', '👖'], ['płaszcz', '🧥'],
+  ['pizza', '🍕'],
   ['lalka', '🧸'], ['lego', '🧱'], ['kumkwat', '🍊'], ['kondomy', '🧷'],
   ['pościel', '🛏'], ['ręcznik', '🛁'],
   ['ręcznik papierowy', '🧻'],

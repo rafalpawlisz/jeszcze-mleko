@@ -147,6 +147,10 @@ const KEYWORDS = {
     // en
     'ice cream', 'ice lolly', 'popsicle', 'fries', 'french fries', 'nugget',
     'ice cube', 'sorbet',
+    // What a shop sells is the frozen one, so a bare "pizza" belongs to the
+    // freezer — the same answer the dominant "mrozon" already gives to
+    // "mrożona pizza". Same word in both languages, hence one entry.
+    'pizza',
   ],
   sypkie: [
     // pl
@@ -365,6 +369,7 @@ const EMOJI = {
   '🍚': ['ryz', 'rice', 'kasz', 'komos', 'quinoa', 'kuskus', 'couscous'],
   '🍝': ['makaron', 'pasta', 'spaghetti', 'penne', 'lazani', 'noodle', 'kluski',
          'zacierk', 'macaroni'],
+  '🍕': ['pizza'],
   '🥟': ['pierog', 'pyzy', 'kopytk', 'nugget'],
   '🌾': ['maka', 'flour', 'platk', 'musli', 'granol', 'otreb', 'oat', 'cereal',
          'cornflake', 'kaszk', 'semolina'],
