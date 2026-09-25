@@ -118,6 +118,11 @@ section('departments — clothes, toys and other gaps');
   ['lalka', 'zabawki'], ['lego', 'zabawki'],
   ['kubek', 'dom'], ['pościel', 'dom'], ['ręcznik', 'dom'],
   ['kumkwaty', 'warzywa'], ['kondomy', 'chemia'],
+  // Brand names are ordinary words the dictionary cannot derive, the same way
+  // 'domestos' and 'cif' are. Both of these are pads.
+  ['bella perfecta ultra', 'chemia'], ['discreet', 'chemia'], ['discreet deo', 'chemia'],
+  // Stationery, on the shelf with the notebooks. The card itself has no picture.
+  ['kartka na wesele', 'dom'],
   ['t-shirt', 'odziez'], ['trousers', 'odziez'], ['toys', 'zabawki'],
   ['towels', 'dom'], ['bedding', 'dom'],
   // The cloth towel belongs to Home; the same word with "papierowy" is a paper
@@ -158,6 +163,10 @@ section('emoji — the product, not the category');
   ['koszulka', '👕'], ['spodnie', '👖'], ['płaszcz', '🧥'],
   ['pizza', '🍕'],
   ['lalka', '🧸'], ['lego', '🧱'], ['kumkwat', '🍊'], ['kondomy', '🧷'],
+  ['bella perfecta ultra', '🧷'], ['discreet deo', '🧷'],
+  ['kubek', '☕'],
+  // A wedding card is stationery and nothing in the set pictures it.
+  ['kartka na wesele', ''],
   ['pościel', '🛏'], ['ręcznik', '🛁'],
   ['ręcznik papierowy', '🧻'],
   // Nothing rather than a wrong guess; the row reserves the space anyway.

@@ -237,6 +237,9 @@ const KEYWORDS = {
     'proszek', 'kapsulki do prania', 'wybielacz', 'odkamieniacz', 'odplamiacz',
     'gabk', 'druciak', 'sciereczk', 'odswiezacz', 'krem', 'balsam', 'golark',
     'do golenia', 'zyletk', 'podpask', 'tampon', 'prezerwatyw', 'kondom',
+    // Brands, like 'domestos' and 'ludwik' below: the words are ordinary, the
+    // product is not. Both are names of pads.
+    'bella', 'discreet',
     'wacik', 'zmywak', 'condom', 'shaving',
     'wkladki', 'pieluch', 'mokre chusteczki', 'domestos', 'ludwik', 'cif',
     'mydelko', 'plyn do szyb', 'wc', 'kostka do wc', 'tabletki do zmywarki',
@@ -277,7 +280,7 @@ const KEYWORDS = {
     'pater', 'pateln',
     'worki na smieci', 'worki', 'torebki sniadaniowe', 'papier sniadaniowy',
     'sandwich bag', 'doniczk', 'nawoz',
-    'kwiat', 'znicz', 'sznurek', 'tasma', 'klej', 'dlugopis', 'zeszyt',
+    'kwiat', 'znicz', 'sznurek', 'tasma', 'klej', 'dlugopis', 'zeszyt', 'kartk',
     'reklamowk', 'siatk', 'zapalniczk', 'wklad',
     // en
     'battery', 'batteries', 'light bulb', 'bulb', 'candle', 'match', 'foil',
@@ -421,7 +424,7 @@ const EMOJI = {
          'plyn do plukania', 'fabric softener', 'wybielacz', 'bleach'],
   '🪒': ['do golenia', 'golark', 'zyletk', 'razor', 'shaving'],
   '🧷': ['podpask', 'tampon', 'pieluch', 'diaper', 'nappy', 'wkladki', 'sanitary pad',
-         'prezerwatyw', 'kondom', 'condom'],
+         'prezerwatyw', 'kondom', 'condom', 'bella', 'discreet'],
   '💊': ['suplement', 'supplement', 'witamin', 'vitamin', 'magnez', 'magnesium',
          'elektrolit', 'electrolyte', 'kolagen', 'collagen', 'probiotyk', 'probiotic',
          'tabletki', 'paracetamol', 'ibuprofen', 'apap', 'cynk', 'zinc', 'omega',
@@ -446,6 +449,7 @@ const EMOJI = {
   // doll of its own.
   '🧸': ['lalk', 'doll', 'zabawk', 'toy'],
   '🧱': ['=lego', 'klocki lego'],
+  '☕': ['kubek', 'kubk', 'mug'],
   '🛏': ['posciel', 'bedding'],
   // A bathtub for the cloth towel; the paper one keeps its own picture, since
   // 'recznik papierowy' is the longer stem.
