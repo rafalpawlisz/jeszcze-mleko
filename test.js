@@ -34,7 +34,8 @@ function section(name) {
 section('departments — Polish');
 [
   ['mleko', 'nabial'], ['śmietana 18%', 'nabial'], ['jajka', 'nabial'],
-  ['chleb razowy', 'pieczywo'], ['pomidory', 'warzywa'], ['winogrona', 'warzywa'],
+  ['chleb razowy', 'pieczywo'], ['bułka', 'pieczywo'], ['bułeczki', 'pieczywo'],
+  ['pomidory', 'warzywa'], ['winogrona', 'warzywa'],
   ['ser żółty', 'nabial'], ['mielone', 'mieso'], ['łosoś wędzony', 'ryby'],
   ['papier toaletowy', 'chemia'], ['papier do pieczenia', 'dom'],
   ['proszek do prania', 'chemia'], ['proszek do pieczenia', 'sypkie'],
@@ -102,6 +103,11 @@ section('departments — gaps found by probing real shopping words');
   ['twaróg', 'nabial'], ['twarożek', 'nabial'], ['serek wiejski', 'nabial'],
   // The common misspelling of "ketchup" is not reachable from the English stem.
   ['keczup', 'konserwy'], ['keczup łagodny', 'konserwy'],
+  // Likewise the Polish spelling of "chips" does not start with the English one.
+  ['czipsy', 'slodycze'], ['chipsy', 'slodycze'],
+  // The colloquial "podcierałka" comes with and without the d, and with the ł
+  // that normalization folds away.
+  ['podcierałka', 'chemia'], ['podcieradełka', 'chemia'], ['podcieradelka', 'chemia'],
   // A phrase built on a stem never matched, because a phrase is compared as a
   // substring and "maszynka" is not "maszynk" followed by a space. Matching on
   // "do golenia" covers the razor, the foam and the gel at once.
@@ -147,7 +153,7 @@ section('departments — a whole word does not swallow a longer one');
 
 section('emoji — the product, not the category');
 [
-  ['mleko', '🥛'], ['chleb', '🍞'], ['pomidory', '🍅'], ['szynka', '🥓'],
+  ['mleko', '🥛'], ['chleb', '🍞'], ['bułeczki', '🥖'], ['pomidory', '🍅'], ['szynka', '🥓'],
   ['ser żółty', '🧀'], ['masło', '🧈'], ['masło orzechowe', '🥜'],
   ['papier toaletowy', '🧻'], ['witaminy', '💊'], ['baterie', '🔋'],
   // The section header already says Frozen, so the row shows what the thing is.
@@ -164,7 +170,7 @@ section('emoji — the product, not the category');
   ['krem', '🧴'],
   ['koszulka', '👕'], ['spodnie', '👖'], ['płaszcz', '🧥'],
   ['pizza', '🍕'],
-  ['keczup', '🥫'],
+  ['keczup', '🥫'], ['czipsy', '🍿'], ['podcierałka', '🧻'],
   ['lalka', '🧸'], ['lego', '🧱'], ['kumkwat', '🍊'], ['kondomy', '🧷'],
   ['bella perfecta ultra', '🧷'], ['discreet deo', '🧷'],
   ['kubek', '☕'],

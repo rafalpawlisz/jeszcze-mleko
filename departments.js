@@ -98,7 +98,7 @@ const KEYWORDS = {
   ],
   pieczywo: [
     // pl
-    'chleb', 'bulk', 'bagiet', 'rogal', 'kajzerk', 'tost', 'pieczyw',
+    'chleb', 'bulk', 'buleczk', 'bagiet', 'rogal', 'kajzerk', 'tost', 'pieczyw',
     'drozdzowk', 'ciabatt', 'graham', 'razow', 'precel', 'obwarzanek',
     'ptys', 'paczek', 'paczki', 'jagodzianka', 'focaccia', 'pita',
     'tortill', 'wrap', 'maca', 'sucharki',
@@ -188,7 +188,7 @@ const KEYWORDS = {
   slodycze: [
     // pl
     'czekolad', 'cukierk', 'batonik', 'baton', 'ciastk', 'herbatnik', 'wafel',
-    'wafl', 'chips', 'paluszk', 'orzech', 'orzeszk', 'migdal', 'nerkowc',
+    'wafl', 'chips', 'czips', 'paluszk', 'orzech', 'orzeszk', 'migdal', 'nerkowc',
     'pistacj', 'rodzynk', 'zelk', 'lizak', 'ciasto', 'keks', 'piernik',
     // Longer than the "krem" that means hand cream, which would win otherwise.
     'kremowk',
@@ -241,6 +241,8 @@ const KEYWORDS = {
     // product is not. Both are names of pads.
     'bella', 'discreet',
     'wacik', 'zmywak', 'condom', 'shaving',
+    // One stem for "podcierałka", "podcieradełka" and the verb they come from.
+    'podciera',
     'wkladki', 'pieluch', 'mokre chusteczki', 'domestos', 'ludwik', 'cif',
     'mydelko', 'plyn do szyb', 'wc', 'kostka do wc', 'tabletki do zmywarki',
     'nablyszczacz', 'sol do zmywarki', 'wata', 'patyczki',
@@ -326,7 +328,7 @@ const EMOJI = {
          'ice cream'],
   '🍞': ['chleb', 'pieczyw', 'razow', 'graham', 'tost', 'bread', 'toast', 'sourdough'],
   '🥐': ['rogal', 'croissant', 'drozdzowk', 'paczek', 'paczki', 'donut', 'doughnut'],
-  '🥖': ['bagiet', 'baguette', 'bulk', 'bun', 'kajzerk'],
+  '🥖': ['bagiet', 'baguette', 'bulk', 'buleczk', 'bun', 'kajzerk'],
   '🥨': ['precel', 'pretzel', 'obwarzanek', 'paluszk'],
   '🍎': ['jablk', 'apple'],
   '🍌': ['banan', 'banana'],
@@ -396,7 +398,7 @@ const EMOJI = {
   '🥜': ['orzech', 'orzeszk', 'nut', 'migdal', 'almond', 'nerkowc', 'cashew',
          'pistacj', 'pistachio', 'walnut', 'hazelnut', 'maslo orzechowe',
          'peanut butter', 'slonecznik', 'pestki', 'sezam', 'chia', 'siemie'],
-  '🍿': ['popcorn', 'chips', 'crisps', 'prazynk', 'nachos', 'snack'],
+  '🍿': ['popcorn', 'chips', 'czips', 'crisps', 'prazynk', 'nachos', 'snack'],
   '💧': ['wod', 'water'],
   '🧃': ['sok', 'juice', 'nektar', 'nectar', 'napoj', 'lemoniad', 'lemonade',
          'oranzad', 'kompot', 'smoothie'],
@@ -410,7 +412,7 @@ const EMOJI = {
          'koniak', 'cognac', 'brandy', 'bourbon', 'tequil', 'nalewk'],
   '🧻': ['papier toaletowy', 'toilet paper', 'toilet roll', 'reczniki papierowe',
          'recznik papierowy', 'paper towel', 'kitchen roll', 'chusteczk', 'tissue',
-         'serwetk', 'napkin'],
+         'serwetk', 'napkin', 'podciera'],
   '🧼': ['mydl', 'soap', 'plyn do naczyn', 'dish soap', 'washing up liquid'],
   '🧴': ['szampon', 'shampoo', 'odzywk', 'conditioner', 'zel', 'balsam', 'lotion',
          'krem', 'cream', 'plyn', 'dezodorant', 'deodorant', 'antyperspirant',
