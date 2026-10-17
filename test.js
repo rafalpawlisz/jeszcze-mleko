@@ -100,6 +100,8 @@ section('departments — gaps found by probing real shopping words');
   ['papier śniadaniowy', 'dom'],
   // "twaróg" alone missed "twarożek": one letter differs in the middle.
   ['twaróg', 'nabial'], ['twarożek', 'nabial'], ['serek wiejski', 'nabial'],
+  // The common misspelling of "ketchup" is not reachable from the English stem.
+  ['keczup', 'konserwy'], ['keczup łagodny', 'konserwy'],
   // A phrase built on a stem never matched, because a phrase is compared as a
   // substring and "maszynka" is not "maszynk" followed by a space. Matching on
   // "do golenia" covers the razor, the foam and the gel at once.
@@ -162,6 +164,7 @@ section('emoji — the product, not the category');
   ['krem', '🧴'],
   ['koszulka', '👕'], ['spodnie', '👖'], ['płaszcz', '🧥'],
   ['pizza', '🍕'],
+  ['keczup', '🥫'],
   ['lalka', '🧸'], ['lego', '🧱'], ['kumkwat', '🍊'], ['kondomy', '🧷'],
   ['bella perfecta ultra', '🧷'], ['discreet deo', '🧷'],
   ['kubek', '☕'],

@@ -174,7 +174,7 @@ const KEYWORDS = {
   ],
   konserwy: [
     // pl
-    'konserw', 'ketchup', 'majonez', 'musztard', 'sos', 'passat', 'koncentrat',
+    'konserw', 'ketchup', 'keczup', 'majonez', 'musztard', 'sos', 'passat', 'koncentrat',
     'oliw', 'olej', 'ocet', 'groszek', 'kukurydz', 'przecier', 'chrzan',
     'ajvar', 'pesto', 'hummus', 'tahini', 'kapary', 'ogorki kiszone',
     'kapusta kiszona', 'buraczki', 'cwikl', 'tunczyk w puszce', 'bulion',
@@ -378,7 +378,7 @@ const EMOJI = {
          'cornflake', 'kaszk', 'semolina'],
   '🫘': ['fasol', 'groch', 'soczewic', 'ciecierzyc', 'bean', 'lentil', 'chickpea',
          'groszek'],
-  '🥫': ['konserw', 'canned', 'sos', 'sauce', 'ketchup', 'majonez', 'mayo', 'musztard',
+  '🥫': ['konserw', 'canned', 'sos', 'sauce', 'ketchup', 'keczup', 'majonez', 'mayo', 'musztard',
          'mustard', 'pesto', 'hummus', 'ajvar', 'bulion', 'przecier', 'salsa'],
   '🫒': ['oliw', 'olej', 'oil', 'olive', 'ocet', 'vinegar'],
   '🍯': ['miod', 'honey', 'dzem', 'jam', 'powidl', 'marmolad', 'marmalade', 'syrop',
