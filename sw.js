@@ -2,7 +2,7 @@
 //
 // IMPORTANT: bump CACHE_VERSION after every change to the app files, otherwise
 // users keep getting the old version.
-const CACHE_VERSION = 'v47';
+const CACHE_VERSION = 'v48';
 const CACHE_NAME = `jeszcze-mleko-${CACHE_VERSION}`;
 
 // On localhost cache-first would be a trap: after every edit the browser would
@@ -32,7 +32,7 @@ const APP_SHELL = [
 // The URLs carry a version number, so this cache can never go stale.
 //
 // MUST match the version imported in app.js.
-const SDK_VERSION = '12.17.0';
+const SDK_VERSION = '13.0.0';
 const SDK_MODULES = ['app', 'app-check', 'auth', 'firestore'].map(
   (module) => `https://www.gstatic.com/firebasejs/${SDK_VERSION}/firebase-${module}.js`,
 );

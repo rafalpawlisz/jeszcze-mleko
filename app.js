@@ -1,13 +1,13 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js';
 import {
   initializeAppCheck,
   ReCaptchaV3Provider,
-} from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-app-check.js';
+} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-app-check.js';
 import {
   getAuth,
   signInAnonymously,
   onAuthStateChanged,
-} from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js';
+} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js';
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -25,7 +25,7 @@ import {
   increment,
   serverTimestamp,
   writeBatch,
-} from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
+} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js';
 
 import { firebaseConfig, recaptchaSiteKey, collectUnmatched } from './firebase-config.js';
 import {
